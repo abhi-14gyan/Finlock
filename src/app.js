@@ -17,5 +17,11 @@ app.use(express.urlencoded({extended: true, limit: "16kb"})) // converts input f
 app.use(express.static("public")) //public folders can be accessed
 app.use(cookieParser());
 
+// routes import 
+const userRouter = require("./routes/user.routes.js");
+
+//routes declaration
+app.use("/api/v1/users", userRouter);
+
 
 module.exports= {app};
