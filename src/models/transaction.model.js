@@ -45,7 +45,7 @@ const transactionSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['PENDING', 'COMPLETED'], // Adjust as needed
+    enum: ['PENDING', 'COMPLETED', 'FAILED'], // Adjust as needed
     default: 'COMPLETED'
   },
   userId: {
