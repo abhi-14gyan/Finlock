@@ -7,4 +7,4 @@ class ApiResponse{
     }
 }
 
-modules.export =  {ApiResponse};
+module.exports =  {ApiResponse};
