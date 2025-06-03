@@ -30,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const existedEmail = await User.findOne({ email });
   if (existedEmail) throw new ApiError(409, "Email already exists");
 
-  let imageUrl = { url: "https://res.cloudinary.com/demo/image/upload/v1717398651/default-avatar.png" }; // Default image URL
+  let imageUrl = { url: "/public/assets/DefaultUserLogo.png" }; // Default image URL
 
   const imageUrlLocalPath = req.files?.imageUrl?.[0]?.path;
   if (imageUrlLocalPath) {
