@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, DollarSign, Star, Zap, CreditCard, Globe, TrendingUp, Target, Scan, Clock } from 'lucide-react';
 
+//componenets
+import LandingNav from '../components/LandingNav';
+
 const FinlockLanding = () => {
   const [activeStep, setActiveStep] = useState(0);
 
@@ -107,25 +110,9 @@ const FinlockLanding = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-      {/* Header */}
-      <header className="flex items-center justify-between p-6 relative z-10">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
-            <TrendingUp className="w-6 h-6 text-white" />
-          </div>
-          <span className="text-2xl font-bold">Finlock</span>
-        </div>
-        <nav className="hidden md:flex items-center space-x-8">
-          <a href="#" className="hover:text-cyan-400 transition-colors">Features</a>
-          <a href="#" className="hover:text-cyan-400 transition-colors">Testimonials</a>
-          <button className="bg-gradient-to-r from-cyan-400 to-blue-500 px-6 py-2 rounded-lg hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300">
-            Login
-          </button>
-        </nav>
-      </header>
-
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-1000 to-slate-900 text-white">
       {/* Hero Section */}
+      <LandingNav/>
       <section className="text-center py-20 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-3xl"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
