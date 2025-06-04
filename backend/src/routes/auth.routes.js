@@ -19,7 +19,7 @@ router.get(
     res.cookie("accessToken", accessToken, { httpOnly: true, secure: true });
     res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true });
 
-    res.redirect(`${process.env.FRONTEND_URL}/login/success?accessToken=${accessToken}`);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
   }
 );
 
