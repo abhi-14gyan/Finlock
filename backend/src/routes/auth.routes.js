@@ -2,7 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
-const { generateAccessAndRefreshToken } = require("../controllers/auth.controller");
+const { generateAccessAndRefreshToken } = require("../controllers/user.controller");
 
 // Step 1: Google login
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));

@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+require('./config/passport');
 const connectDB = require('./db/index.js');
 const { app } = require('./app.js');
 
