@@ -16,8 +16,8 @@ const FinlockLanding = () => {
   }, []);
 
   const stats = [
-    { icon: Users, value: '50K+', label: 'Active Users', color: 'from-blue-400 to-purple-500' },
-    { icon: DollarSign, value: '$2B+', label: 'Transactions Tracked', color: 'from-yellow-400 to-orange-500' },
+    { icon: Users, value: '1K+', label: 'Active Users', color: 'from-blue-400 to-purple-500' },
+    { icon: DollarSign, value: '$1k+', label: 'Transactions Tracked', color: 'from-yellow-400 to-orange-500' },
     { icon: Zap, value: '99.9%', label: 'Uptime', color: 'from-red-400 to-pink-500' },
     { icon: Star, value: '4.9/5', label: 'User Rating', color: 'from-green-400 to-teal-500' }
   ];
