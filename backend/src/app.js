@@ -6,7 +6,7 @@ const passport = require("passport"); // ✅ NEW: import passport
 const app = express();
 
 // ✅ Load passport config (Google strategy)
-require("./src/config/passport");
+require("./config/passport");
 
 // Middlewares
 app.use(
