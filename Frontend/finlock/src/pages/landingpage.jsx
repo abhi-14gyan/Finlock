@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, DollarSign, Star, Zap, CreditCard, Globe, TrendingUp, Target, Scan, Clock } from 'lucide-react';
 
-const NeoWealthLanding = () => {
+const FinlockLanding = () => {
   const [activeStep, setActiveStep] = useState(0);
 
   // Auto-cycle through activation protocol steps
@@ -85,7 +85,7 @@ const NeoWealthLanding = () => {
       role: 'Small Business Owner',
       avatar: 'SJ',
       rating: 5,
-      text: 'NeoWealth has transformed how I manage my business finances. The AI insights have helped me identify cost-saving opportunities I never knew existed.',
+      text: 'Finlock has transformed how I manage my business finances. The AI insights have helped me identify cost-saving opportunities I never knew existed.',
       color: 'from-blue-400 to-cyan-500'
     },
     {
@@ -101,7 +101,7 @@ const NeoWealthLanding = () => {
       role: 'Financial Advisor',
       avatar: 'ER',
       rating: 5,
-      text: 'I recommend NeoWealth to all my clients. The multi-currency support and detailed analytics make it perfect for international investors.',
+      text: 'I recommend Finlock to all my clients. The multi-currency support and detailed analytics make it perfect for international investors.',
       color: 'from-green-400 to-teal-500'
     }
   ];
@@ -114,7 +114,7 @@ const NeoWealthLanding = () => {
           <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
             <TrendingUp className="w-6 h-6 text-white" />
           </div>
-          <span className="text-2xl font-bold">NeoWealth</span>
+          <span className="text-2xl font-bold">Finlock</span>
         </div>
         <nav className="hidden md:flex items-center space-x-8">
           <a href="#" className="hover:text-cyan-400 transition-colors">Features</a>
@@ -265,7 +265,7 @@ const NeoWealthLanding = () => {
             Ready to Activate Financial Intelligence?
           </h2>
           <p className="text-xl text-gray-300 mb-12">
-            Join thousands of users who are already managing their finances smarter with NeoWealth
+            Join thousands of users who are already managing their finances smarter with Finlock
           </p>
           <button className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
             Start Neural Trial
@@ -281,10 +281,10 @@ const NeoWealthLanding = () => {
             <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold">NeoWealth</span>
+            <span className="text-xl font-bold">Finlock</span>
           </div>
           <div className="text-gray-400 text-sm">
-            © 2025 NeoWealth. All rights reserved. | Powered by Neural Intelligence
+            © 2025 Finlock. All rights reserved. | Powered by Neural Intelligence
           </div>
         </div>
       </footer>
@@ -292,4 +292,4 @@ const NeoWealthLanding = () => {
   );
 };
 
-export default NeoWealthLanding;
+export default FinlockLanding;
