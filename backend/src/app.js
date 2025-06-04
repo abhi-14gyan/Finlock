@@ -1,11 +1,14 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const passport = require("passport"); // ✅ NEW: import passport
 
+
 const app = express();
 
 // ✅ Load passport config (Google strategy)
+
 require("./config/passport");
 
 // Middlewares
