@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 import logo from './logo.svg';
+=======
+import { Route, Routes } from 'react-router-dom';
+
+//Pages
+import SignInPage from './pages/Signin';
+
+>>>>>>> d28268f4e48775b60cc92b5feffb328478518a2c
 import './App.css';
 
 function App() {
   return (
     <div className="App">
+<<<<<<< HEAD
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
@@ -18,6 +27,12 @@ function App() {
           Learn React
         </a>
       </header>
+=======
+      <Routes>
+        <Route path="/signin" element={<SignInPage/>}/>
+      </Routes>
+      <h1>This is the front end</h1>
+>>>>>>> d28268f4e48775b60cc92b5feffb328478518a2c
     </div>
   );
 }
