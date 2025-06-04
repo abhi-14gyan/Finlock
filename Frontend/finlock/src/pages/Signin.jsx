@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/InitialNavbar';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useTheme } from '../context/ThemeContext';
 
 export default function SignInPage() {
-  const [email, setEmail] = useState('m@example.com');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -18,11 +20,7 @@ export default function SignInPage() {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/v1/auth/login", {
-        email,
-        password,
-      });
-
+      const response = await axios.post("http://localhost:4000/api/v1/auth/login", { email, password });
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {
@@ -47,101 +45,153 @@ export default function SignInPage() {
     navigate("/register");
   };
 
+  const themeStyles = {
+    dark: {
+      background: 'bg-[#0F0E17]',
+      card: 'bg-[#1A1A2E]/90 border-[#2E2E3A]/50',
+      input: 'bg-[#20202E] border-[#2E2E3A] text-white placeholder-gray-500 focus:ring-violet-500',
+      text: {
+        primary: 'text-white',
+        secondary: 'text-gray-400',
+        muted: 'text-gray-500'
+      },
+      decorativeOrbs: {
+        first: 'bg-violet-600/30',
+        second: 'bg-pink-600/30',
+        third: 'bg-indigo-600/30'
+      },
+      divider: 'border-[#2E2E3A]',
+      dividerBg: 'bg-[#1A1A2E]'
+    },
+    light: {
+      background: 'bg-gradient-to-br from-white via-slate-500 to-white',
+      card: 'bg-white/80 border-slate-200/70',
+      input: 'bg-slate-50 border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500',
+      text: {
+        primary: 'text-gray-900',
+        secondary: 'text-gray-600',
+        muted: 'text-gray-500'
+      },
+      decorativeOrbs: {
+        first: 'bg-purple-200/30',
+        second: 'bg-pink-200/30',
+        third: 'bg-blue-200/30'
+      },
+      divider: 'border-slate-300',
+      dividerBg: 'bg-white'
+    }
+  };
+
+  const currentTheme = themeStyles[theme];
+
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-white transition-colors duration-300">
+    <>
       <Navbar />
 
-      {/* Form Container */}
-      <div className="flex items-center justify-center p-20">
-        <div className="w-full max-w-md">
-          <div className="bg-gray-700 rounded-lg p-8 shadow-2xl border border-gray-700">
-            {/* Header */}
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h1 className="text-white text-xl font-semibold mb-2">
-                  Login to your account
-                </h1>
-                <p className="text-gray-400 text-sm">
-                  Enter your email below to login to your account
-                </p>
-              </div>
-              <button onClick={handleSignUpRedirect} className="text-white text-sm hover:underline">
-                Sign Up
-              </button>
-            </div>
+      <div className={`min-h-screen ${currentTheme.background} pt-28 relative`}>
+        {/* Decorative Orbs */}
+        <div className="absolute inset-0 overflow-hidden z-0 pointer-events-none">
+          <div className={`absolute top-10 left-10 w-72 h-72 ${currentTheme.decorativeOrbs.first} rounded-full mix-blend-multiply filter blur-2xl animate-pulse`} />
+          <div className={`absolute top-40 right-10 w-72 h-72 ${currentTheme.decorativeOrbs.second} rounded-full mix-blend-multiply filter blur-2xl animate-pulse`} />
+          <div className={`absolute bottom-0 left-1/3 w-72 h-72 ${currentTheme.decorativeOrbs.third} rounded-full mix-blend-multiply filter blur-2xl animate-pulse`} />
+        </div>
 
-            {/* Form */}
-            <div className="space-y-4">
-              {/* Email Field */}
-              <div>
-                <label htmlFor="email" className="block text-white text-sm font-medium mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="m@example.com"
-                />
-              </div>
-
-              {/* Password Field */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="password" className="block text-white text-sm font-medium">
-                    Password
-                  </label>
-                  <button type="button" className="text-blue-400 text-sm hover:underline">
-                    Forgot your password?
-                  </button>
+        {/* SignIn Form */}
+        <div className="relative z-10 flex justify-center items-center px-4">
+          <div className="w-full max-w-md">
+            <div className={`${currentTheme.card} backdrop-blur-xl rounded-2xl p-8 shadow-2xl border`}>
+              {/* Header */}
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-lg">
+                  <div className="w-8 h-8 bg-white rounded-lg" />
                 </div>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <h1 className={`${currentTheme.text.primary} text-2xl font-bold mb-2`}>Sign In</h1>
+                <p className={`${currentTheme.text.secondary} text-sm`}>Welcome back! Please login to your account.</p>
               </div>
 
-              {/* Login Button with Spinner */}
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="w-full bg-gray-200 hover:bg-gray-100 text-black font-medium py-2 px-4 rounded-md transition-colors duration-200 flex items-center justify-center"
-              >
-                {loading ? (
-                  <svg
-                    className="animate-spin h-5 w-5 text-black"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8v8z"
-                    ></path>
-                  </svg>
-                ) : (
-                  "Login"
-                )}
-              </button>
+              {/* Form */}
+              <div className="space-y-5">
+                <div>
+                  <label htmlFor="email" className={`block ${currentTheme.text.primary} text-sm font-medium mb-2`}>Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={`w-full px-4 py-3 ${currentTheme.input} rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200`}
+                    placeholder="Enter your email"
+                    required
+                  />
+                </div>
 
-              {/* Google Login Button */}
-              <button
-                onClick={handleGoogleLogin}
-                className="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md border border-gray-600 transition-colors duration-200"
-              >
-                Login with Google
-              </button>
+                <div>
+                  <label htmlFor="password" className={`block ${currentTheme.text.primary} text-sm font-medium mb-2`}>Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`w-full px-4 py-3 ${currentTheme.input} rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all duration-200`}
+                    placeholder="Enter your password"
+                    required
+                  />
+                </div>
+
+                <div className="text-right">
+                  <button className="text-sm text-purple-400 hover:text-purple-300 hover:underline transition-colors duration-200">Forgot password?</button>
+                </div>
+
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-4 rounded-xl transition-transform duration-200 transform hover:scale-105 shadow-lg"
+                >
+                  {loading ? (
+                    <svg className="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                  ) : 'Login'}
+                </button>
+
+                {/* Divider */}
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className={`w-full border-t ${currentTheme.divider}`} />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className={`px-2 ${currentTheme.dividerBg} ${currentTheme.text.secondary}`}>or</span>
+                  </div>
+                </div>
+
+                {/* Google Login */}
+                <button
+                  onClick={handleGoogleLogin}
+                  className="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md border border-gray-600 transition-colors duration-200"
+                >
+                  Login with Google
+                </button>
+
+                {/* Sign Up Redirect */}
+                <div className="text-center">
+                  <p className={`${currentTheme.text.secondary} text-sm`}>
+                    Don’t have an account?{' '}
+                    <button onClick={handleSignUpRedirect} className="text-purple-400 hover:text-purple-300 font-medium hover:underline transition-colors duration-200">
+                      Sign Up
+                    </button>
+                  </p>
+                </div>
+
+                <div className={`mt-8 pt-6 border-t ${currentTheme.divider}`}>
+                  <p className={`text-center ${currentTheme.text.muted} text-xs`}>
+                    By signing in, you agree to our Terms of Service and Privacy Policy
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
