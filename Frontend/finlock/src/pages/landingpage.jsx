@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 //componenets
 import LandingNav from '../components/LandingNav';
 import logo from "../assets/Finlocklogo.png";
+import TiltedImageSection from './image1';
 
 const FinlockLanding = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -127,7 +128,7 @@ const FinlockLanding = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-1000 to-slate-900 text-white">
       {/* Hero Section */}
       <LandingNav/>
-      <section className="text-center py-20 px-6 relative overflow-hidden">
+      <section className="text-center py-10 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-3xl"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
           <div className="inline-flex items-center bg-cyan-500/20 backdrop-blur-sm border border-cyan-500/30 rounded-full px-4 py-2 mb-8">
@@ -136,25 +137,41 @@ const FinlockLanding = () => {
           </div>
           
           <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
-            Manage <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Your Finances</span>
+            Finlock <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Your Personal</span>
             <br />
-            with Neural Intelligence
+            AI Financial Companion
           </h1>
           
           <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            An AI-powered financial management platform that helps you track, analyze, 
-            and optimize your spending with real-time quantum insights.
+            Manage expenses, create smart budgets, and unlock powerful AI-driven insights — all in one futuristic platform.
           </p>
           
-          <button className="bg-gradient-to-r from-cyan-400 to-purple-500 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
-            Initialize System
+          <button onClick={handleClick} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
+            Get Started for Free
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
           </button>
         </div>
       </section>
 
+      {/*image1*/}
+      <TiltedImageSection/>
+      
+      {/*why finlock*/}
+      <section className="py-10 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              Why Finlock?
+            </h2>
+            <p className="text-xl text-gray-300">
+              Most people struggle to understand where their money goes. Traditional budgeting tools are outdated, and financial advice is often generic. Finlock changes that. With our AI-powered system, you get a personalized financial agent that adapts to your goals, predicts your spending behavior, and guides you with smart insights — effortlessly.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Stats Section */}
-      <section className="py-16 px-6">
+      <section className="py-5 px-6">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
             <div key={index} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center hover:bg-slate-800/70 transition-all duration-300 hover:scale-105">
@@ -173,7 +190,7 @@ const FinlockLanding = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Neural Financial Suite
+              Finlock Features That Empower You
             </h2>
             <p className="text-xl text-gray-300">
               Everything you need to manage your finances with quantum-level precision
@@ -199,7 +216,7 @@ const FinlockLanding = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Neural Activation Protocol
+              Get Started with Finlock Today
             </h2>
           </div>
           
@@ -269,7 +286,7 @@ const FinlockLanding = () => {
             Join thousands of users who are already managing their finances smarter with Finlock
           </p>
           <button onClick={handleClick} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
-            Start Neural Trial
+            Start Managing Smarter with Finlock
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">◉</span>
           </button>
         </div>
