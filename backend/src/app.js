@@ -35,5 +35,4 @@ const authRouter = require("./routes/auth.routes.js"); // ✅ NEW: Import Google
 // Routes declaration
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter); // ✅ NEW: Use Google OAuth routes
-
 module.exports = { app };
