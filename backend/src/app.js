@@ -32,11 +32,14 @@ app.use(passport.initialize());
 const userRouter = require("./routes/user.routes.js");
 const authRouter = require("./routes/auth.routes.js"); // ✅ NEW: Import Google OAuth router
 const accRouter = require("./routes/account.routes.js");
+const dashboardRoutes = require("./routes/dashboard.routes");
+
 
 
 // Routes declaration
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/account", accRouter); // ✅ NEW: Use Google OAuth routes
+app.use("/api/v1/dashboard", dashboardRoutes);
 
 module.exports = { app };
