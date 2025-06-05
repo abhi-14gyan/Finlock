@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, DollarSign, Star, Zap, CreditCard, Globe, TrendingUp, Target, Scan, Clock } from 'lucide-react';
-
+import { useNavigate } from "react-router-dom";
 //componenets
 import LandingNav from '../components/LandingNav';
+import logo from "../assets/Finlocklogo.png";
 
 const FinlockLanding = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -14,6 +15,19 @@ const FinlockLanding = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+    const navigate = useNavigate();
+
+  const handleClick = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.token) {
+      // ✅ User is logged in
+      navigate("/dashboard");
+    } else {
+      // ❌ Not logged in
+      navigate("/signin");
+    }
+  };
 
   const stats = [
     { icon: Users, value: '1K+', label: 'Active Users', color: 'from-blue-400 to-purple-500' },
@@ -254,7 +268,7 @@ const FinlockLanding = () => {
           <p className="text-xl text-gray-300 mb-12">
             Join thousands of users who are already managing their finances smarter with Finlock
           </p>
-          <button className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
+          <button onClick={handleClick} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
             Start Neural Trial
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">◉</span>
           </button>
@@ -265,9 +279,7 @@ const FinlockLanding = () => {
       <footer className="border-t border-slate-700/50 py-8 px-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-cyan-400 to-purple-500 rounded-full flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
+            <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
             <span className="text-xl font-bold">Finlock</span>
           </div>
           <div className="text-gray-400 text-sm">

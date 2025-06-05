@@ -19,13 +19,13 @@ export default function LandingNav() {
         {/* Right Side: Links + Theme Toggle */}
         <div className="flex items-center space-x-6">
           <a
-            href="#features"
+            href="/features"
             className="text-gray-800 dark:text-gray-200 hover:underline"
           >
             Features
           </a>
           <a
-            href="#contact"
+            href="/contact"
             className="text-gray-800 dark:text-gray-200 hover:underline"
           >
             Contact
