@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, DollarSign, Star, Zap, CreditCard, Globe, TrendingUp, Target, Scan, Clock } from 'lucide-react';
+import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 //componenets
 import LandingNav from '../components/LandingNav';
@@ -19,16 +20,15 @@ const FinlockLanding = () => {
 
     const navigate = useNavigate();
 
-  const handleClick = () => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user && user.token) {
-      // ✅ User is logged in
-      navigate("/dashboard");
-    } else {
-      // ❌ Not logged in
-      navigate("/signin");
-    }
-  };
+  const checkAuth = async () => {
+  try {
+    const res = await axios.get("/api/v1/users/me", { withCredentials: true });
+    navigate("/dashboard");
+  } catch (err) {
+    navigate("/signin");
+  }
+};
+
 
   const stats = [
     { icon: Users, value: '1K+', label: 'Active Users', color: 'from-blue-400 to-purple-500' },
@@ -146,7 +146,7 @@ const FinlockLanding = () => {
             Manage expenses, create smart budgets, and unlock powerful AI-driven insights — all in one futuristic platform.
           </p>
           
-          <button onClick={handleClick} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
+          <button onClick={checkAuth} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
             Get Started for Free
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
           </button>
@@ -285,7 +285,7 @@ const FinlockLanding = () => {
           <p className="text-xl text-gray-300 mb-12">
             Join thousands of users who are already managing their finances smarter with Finlock
           </p>
-          <button onClick={handleClick} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
+          <button onClick={checkAuth} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
             Start Managing Smarter with Finlock
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">◉</span>
           </button>
