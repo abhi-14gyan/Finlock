@@ -4,6 +4,8 @@ import Navbar from '../components/InitialNavbar';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -11,6 +13,8 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { setUser } = useAuth();
+
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -21,6 +25,7 @@ export default function SignInPage() {
     setLoading(true);
     try {
       const response = await axios.post("http://localhost:4000/api/v1/users/login", { email, password });
+      setUser(response.data.data.user);
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {

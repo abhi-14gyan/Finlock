@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart3, Users, DollarSign, Star, Zap, CreditCard, Globe, TrendingUp, Target, Scan, Clock } from 'lucide-react';
-import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 //componenets
 import LandingNav from '../components/LandingNav';
 import logo from "../assets/Finlocklogo.png";
@@ -9,7 +9,8 @@ import TiltedImageSection from './image1';
 
 const FinlockLanding = () => {
   const [activeStep, setActiveStep] = useState(0);
-
+  const { user, checkingAuth } = useAuth();
+  const navigate = useNavigate();
   // Auto-cycle through activation protocol steps
   useEffect(() => {
     const interval = setInterval(() => {
@@ -18,14 +19,13 @@ const FinlockLanding = () => {
     return () => clearInterval(interval);
   }, []);
 
-    const navigate = useNavigate();
-
-  const checkAuth = async () => {
-  try {
-    const res = await axios.get("/api/v1/users/me", { withCredentials: true });
-    navigate("/dashboard");
-  } catch (err) {
-    navigate("/signin");
+   const checkAuth = () => {
+  if (!checkingAuth) {
+    if (user) {
+      navigate("/dashboard");
+    } else {
+      navigate("/signin");
+    }
   }
 };
 
