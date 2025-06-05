@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/InitialNavbar';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+
 
 export default function RegisterPage() {
+    const [loading, setLoading] = useState(false);
     const {theme} = useTheme();
     const [formData, setFormData] = useState({
     username: '',
@@ -28,9 +32,44 @@ export default function RegisterPage() {
     }
   };
 
-  const handleSubmit = () => {
-    console.log('Form Data:', formData);
-  };
+  const handleSubmit = async () => {
+  const { username, email, password, image } = formData;
+
+  if (!username || !email || !password) {
+    toast.error("Please fill in all required fields");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const data = new FormData();
+    data.append("username", username);
+    data.append("email", email);
+    data.append("password", password);
+    if (image) data.append("imageUrl", image);
+
+    const response = await axios.post("http://localhost:4000/api/v1/users/register", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    toast.success("Registration successful! Redirecting to login...");
+    navigate("/signin");
+  } catch (error) {
+    if (error.response?.status === 409) {
+      toast.error("Email already registered. Please login.");
+      navigate("/login");
+    } else if (error.response?.status === 400) {
+      toast.error("Invalid data. Please check your inputs.");
+    } else {
+      toast.error("Registration failed. Please try again later.");
+    }
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleSignIn = () => {
         navigate("/signin");
