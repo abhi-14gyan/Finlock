@@ -20,10 +20,11 @@ export default function SignInPage() {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/v1/auth/login", { email, password });
+      const response = await axios.post("http://localhost:4000/api/v1/users/login", { email, password });
       toast.success("Login successful!");
       navigate("/dashboard");
     } catch (error) {
+      console.error(error);
       if (error.response?.status === 404) {
         toast.info("Email not registered. Redirecting to Sign Up...");
         navigate("/register");
