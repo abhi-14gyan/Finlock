@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/InitialNavbar';
 import axios from 'axios';
@@ -14,7 +14,14 @@ export default function SignInPage() {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { setUser } = useAuth();
+  const { user, checkingAuth } = useAuth();
 
+  useEffect(() => {
+  if (!checkingAuth && user) {
+    toast.success("Already Logged In!");
+    navigate("/dashboard");
+  }
+}, [checkingAuth, user, navigate]);
 
   const handleSubmit = async () => {
     if (!email || !password) {

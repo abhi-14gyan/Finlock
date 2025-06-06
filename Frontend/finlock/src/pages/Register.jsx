@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/InitialNavbar';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
+import { useAuth } from '../context/AuthContext';
 
 export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
@@ -17,6 +17,17 @@ export default function RegisterPage() {
   });
   const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
+  const { user, checkingAuth } = useAuth();
+  
+  useEffect(() => {
+  if (!checkingAuth && user) {
+    toast.success("Already Logged In!");
+    navigate("/dashboard");
+  }
+}, [checkingAuth, user, navigate]);
+
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));

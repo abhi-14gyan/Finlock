@@ -1,33 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Plus, Sun, Moon, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState('personal');
   const navigate = useNavigate();
+  const { setUser } = useAuth();
+  const { user, checkingAuth } = useAuth();
+    // 🔐 Protect the route
+  useEffect(() => {
+    if (!checkingAuth && !user) {
+      navigate("/signin");
+    }
+  }, [checkingAuth, user, navigate]);
+
 
   const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
-        withCredentials: true, // Important: ensures cookies are sent
-      });
+  try {
+    await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
+      withCredentials: true, // Send cookies to clear session on backend
+    });
 
-      // Clear any frontend state if needed (optional)
-      localStorage.removeItem("user");
+    // Clear user from context (not localStorage)
+    setUser(null);
 
-      // Redirect to home page
-      toast.success("Logout Successfull");
-      navigate("/");
-    } catch (error) {
-      toast.error("Logout failed. Please try again.");
-      console.log(error);
-      console.error("Logout failed:", error?.response?.data?.message || error.message);
-    }
-  };
+    toast.success("Logout successful");
+    navigate("/");
+  } catch (error) {
+    toast.error("Logout failed. Please try again.");
+    console.error("Logout failed:", error?.response?.data?.message || error.message);
+  }
+};
 
 
 
