@@ -4,6 +4,8 @@ import { Route, Routes } from 'react-router-dom';
 import SignInPage from './pages/Signin';
 import NeoWealthLanding from './pages/landingpage';
 import RegisterPage from './pages/Register';
+import Dashboard from './pages/dashboard';
+
 import './App.css';
 
 function App() {
@@ -13,6 +15,7 @@ function App() {
         <Route path="/" element={<NeoWealthLanding/>}/>
         <Route path="/signin" element={<SignInPage/>}/>
         <Route path="/register" element={<RegisterPage/>}/>
+        <Route path="/dashboard" element={<Dashboard/>}/>
 
       </Routes>
     </div>
