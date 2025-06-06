@@ -1,10 +1,36 @@
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Plus, Sun, Moon, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
+import { toast } from 'react-toastify';
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState('personal');
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
+        withCredentials: true, // Important: ensures cookies are sent
+      });
+
+      // Clear any frontend state if needed (optional)
+      localStorage.removeItem("user");
+
+      // Redirect to home page
+      toast.success("Logout Successfull");
+      navigate("/");
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.log(error);
+      console.error("Logout failed:", error?.response?.data?.message || error.message);
+    }
+  };
+
+
+
 
   const themeStyles = {
     dark: {
@@ -69,6 +95,7 @@ const Dashboard = () => {
   const budgetTotal = 7000.00;
   const budgetPercentage = (budgetUsed / budgetTotal) * 100;
 
+
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
       {/* Decorative background orbs */}
@@ -97,6 +124,12 @@ const Dashboard = () => {
               <Edit2 className="w-4 h-4" />
               <span>Add Transaction</span>
             </button>
+            <button
+              onClick={handleLogout}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            >
+              Logout
+            </button>
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
               <User className="w-5 h-5 text-white" />
             </div>
@@ -118,7 +151,7 @@ const Dashboard = () => {
             </span>
           </div>
           <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-            <div 
+            <div
               className="bg-black h-2 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
             ></div>
@@ -131,7 +164,7 @@ const Dashboard = () => {
           <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
             <div className="flex justify-between items-center mb-4">
               <h2 className={`text-lg font-semibold ${theme.text.primary}`}>Recent Transactions</h2>
-              <select 
+              <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
                 className={`${theme.input} rounded-lg px-3 py-1 text-sm border focus:outline-none focus:ring-2`}
@@ -188,7 +221,7 @@ const Dashboard = () => {
               <div className="ml-6 space-y-2">
                 {expenseData.map((item, index) => (
                   <div key={index} className="flex items-center space-x-2">
-                    <div 
+                    <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: item.color }}
                     ></div>
