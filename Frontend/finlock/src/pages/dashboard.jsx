@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
@@ -12,30 +13,34 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const { user, checkingAuth } = useAuth();
-    // 🔐 Protect the route
+  const [openDrawer, setOpenDrawer] = useState(false);
+  // 🔐 Protect the route
   useEffect(() => {
     if (!checkingAuth && !user) {
       navigate("/signin");
     }
   }, [checkingAuth, user, navigate]);
 
+  const handleClick = () => {
+    setOpenDrawer(true);
+  };
 
   const handleLogout = async () => {
-  try {
-    await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
-      withCredentials: true, // Send cookies to clear session on backend
-    });
+    try {
+      await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
+        withCredentials: true, // Send cookies to clear session on backend
+      });
 
-    // Clear user from context (not localStorage)
-    setUser(null);
+      // Clear user from context (not localStorage)
+      setUser(null);
 
-    toast.success("Logout successful");
-    navigate("/");
-  } catch (error) {
-    toast.error("Logout failed. Please try again.");
-    console.error("Logout failed:", error?.response?.data?.message || error.message);
-  }
-};
+      toast.success("Logout successful");
+      navigate("/");
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout failed:", error?.response?.data?.message || error.message);
+    }
+  };
 
 
 
@@ -244,13 +249,16 @@ const Dashboard = () => {
         </div>
 
         {/* Account Cards */}
+        <CreateAccountDrawer open={openDrawer} setOpen={setOpenDrawer} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Add New Account */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}>
+          <div
+            onClick={handleClick}
+            className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
+          >
             <Plus className={`w-12 h-12 ${theme.text.secondary} mb-3`} />
             <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
           </div>
-
           {/* Work Account */}
           <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px]`}>
             <div className="flex justify-between items-start mb-4">
