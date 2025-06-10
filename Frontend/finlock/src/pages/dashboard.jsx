@@ -20,22 +20,25 @@ const Dashboard = () => {
   }, [checkingAuth, user, navigate]);
 
 
-  const handleLogout = async () => {
+const handleLogout = async () => {
   try {
-    await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
-      withCredentials: true, // Send cookies to clear session on backend
+    const res = await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
+      withCredentials: true,
     });
 
-    // Clear user from context (not localStorage)
-    setUser(null);
-
-    toast.success("Logout successful");
-    navigate("/");
+    if (res.status === 200) {
+      setUser(null); // Important for UI state update
+      toast.success(res.data?.message || "Logout successful");
+      navigate("/");
+    } else {
+      throw new Error("Unexpected status during logout");
+    }
   } catch (error) {
     toast.error("Logout failed. Please try again.");
     console.error("Logout failed:", error?.response?.data?.message || error.message);
   }
 };
+
 
 
 

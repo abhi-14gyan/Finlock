@@ -88,11 +88,15 @@ const logoutUser = asyncHandler(async (req, res, next) => {
 
     const options = { httpOnly: true, secure: false };
 
-    return res
-      .status(200)
-      .clearCookie("accessToken", options)
-      .clearCookie("refreshToken", options)
-      .json(new ApiResponse(200, {}, "User logged out successfully"));
+  return res
+  .status(200)
+  .clearCookie("accessToken", options)
+  .clearCookie("refreshToken", options)
+  .json({
+    success: true,
+    message: "User logged out successfully",
+  });
+
   } catch (error) {
     return next(new ApiError(500, error.message || "Logout failed"));
   }

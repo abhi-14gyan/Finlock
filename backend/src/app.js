@@ -14,7 +14,7 @@ require("./config/passport");
 // Middlewares
 app.use(
   cors({
-    origin: process.env.COURSE_ORIGIN, // e.g., "http://localhost:3000"
+    origin: "http://localhost:3000", // e.g., "http://localhost:3000"
     credentials: true,
   })//used to allow cross origin resouce sharing (server running at localhost:4000 and frontend running at 3000,
   // //  to send requests from different origins)
