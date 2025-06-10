@@ -10,6 +10,32 @@ const serializeDecimal = (obj) => {
   return serialized;
 };
 
+exports.createAccount = async (req, res) => {
+  try {
+    const { name, type, balance, isDefault, userId } = req.body;
+
+    // Validate required fields
+    if (!name || !type || !balance || !userId) {
+      return res.status(400).json({ message: 'Missing required fields.' });
+    }
+
+    const newAccount = new Account({
+      name,
+      type,
+      balance,
+      isDefault: isDefault || false,
+      userId
+    });
+
+    const savedAccount = await newAccount.save();
+    res.status(201).json({ message: 'Account created successfully.', account: savedAccount });
+  } catch (error) {
+    console.error('Error creating account:', error);
+    res.status(500).json({ message: 'Server error. Could not create account.' });
+  }
+};
+
+
 // GET account with transactions
 exports.getAccountWithTransactions = async (req, res) => {
   const userId = req.user._id; // assuming auth middleware sets req.user
