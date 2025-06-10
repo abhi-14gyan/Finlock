@@ -1,24 +1,26 @@
+import './App.css';
 import { Route, Routes } from 'react-router-dom';
-
+import { Suspense, lazy } from "react";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from './components/ProtectedRoute';
 //Pages
-import SignInPage from './pages/Signin';
 import NeoWealthLanding from './pages/landingpage';
 import RegisterPage from './pages/Register';
-import Dashboard from './pages/dashboard';
-import { AuthProvider } from "./context/AuthContext";
-
-import './App.css';
+const Dashboard = lazy(() => import("./pages/dashboard.jsx"));
+const SignInPage = lazy(() => import("./pages/Signin.jsx"));
 
 function App() {
   return (
     <div className="App">
+      <Suspense fallback={<div className="text-center mt-20">Loading page...</div>}>
       <Routes>
         <Route path="/" element={<NeoWealthLanding/>}/>
-        <Route path="/signin" element={<SignInPage/>}/>
         <Route path="/register" element={<RegisterPage/>}/>
-        <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
+        <Route path="/signin" element={<SignInPage/>}/>
 
       </Routes>
+      </Suspense>
     </div>
   );
 }
