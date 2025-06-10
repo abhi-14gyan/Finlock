@@ -17,18 +17,10 @@ export default function SignInPage() {
   const { user, checkingAuth } = useAuth();
 
   useEffect(() => {
-<<<<<<< HEAD
-    if (!checkingAuth && user) {
-      toast.success("Already Logged In!");
-      navigate("/dashboard");
-    }
-  }, [checkingAuth, user, navigate]);
-=======
   if (!checkingAuth && user) {
     navigate("/dashboard");
   }
 }, [checkingAuth, user, navigate]);
->>>>>>> 8cc5bacb72441e18c66cf99e3aea4d0fbe0ccc8c
 
   const handleSubmit = async () => {
     if (!email || !password) {
