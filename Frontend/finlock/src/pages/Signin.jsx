@@ -18,7 +18,6 @@ export default function SignInPage() {
 
   useEffect(() => {
   if (!checkingAuth && user) {
-    toast.success("Already Logged In!");
     navigate("/dashboard");
   }
 }, [checkingAuth, user, navigate]);
