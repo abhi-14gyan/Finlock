@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/v1/auth/me", {
+        const res = await axios.get("/api/v1/auth/me", {
           withCredentials: true,
         });
         setUser(res.data.user);

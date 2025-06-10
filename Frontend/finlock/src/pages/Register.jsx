@@ -59,7 +59,7 @@ export default function RegisterPage() {
     data.append("password", password);
     if (image) data.append("imageUrl", image);
 
-    const response = await axios.post("http://localhost:4000/api/v1/users/register", data, {
+    const response = await axios.post("/api/v1/users/register", data, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

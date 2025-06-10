@@ -17,11 +17,11 @@ export default function SignInPage() {
   const { user, checkingAuth } = useAuth();
 
   useEffect(() => {
-  if (!checkingAuth && user) {
-    toast.success("Already Logged In!");
-    navigate("/dashboard");
-  }
-}, [checkingAuth, user, navigate]);
+    if (!checkingAuth && user) {
+      toast.success("Already Logged In!");
+      navigate("/dashboard");
+    }
+  }, [checkingAuth, user, navigate]);
 
   const handleSubmit = async () => {
     if (!email || !password) {
@@ -31,7 +31,9 @@ export default function SignInPage() {
 
     setLoading(true);
     try {
-      const response = await axios.post("http://localhost:4000/api/v1/users/login", { email, password });
+      const response = await axios.post("/api/v1/users/login", { email, password }, {
+        withCredentials: true
+      });
       setUser(response.data.data.user);
       toast.success("Login successful!");
       navigate("/dashboard");
@@ -51,10 +53,10 @@ export default function SignInPage() {
   };
 
   const handleGoogleLogin = () => {
-    if(user){
+    if (user) {
       toast.success("Already Signed in");
     }
-    window.location.href = "http://localhost:4000/api/v1/auth/google";
+    window.location.href = "/api/v1/auth/google";
   };
 
   const handleSignUpRedirect = () => {

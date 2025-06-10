@@ -2,6 +2,7 @@
   "name": "finlock",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:4000",
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
     "@testing-library/dom": "^10.4.0",

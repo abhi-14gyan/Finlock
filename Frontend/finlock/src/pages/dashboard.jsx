@@ -26,7 +26,7 @@ const Dashboard = () => {
   };
 const handleLogout = async () => {
   try {
-    const res = await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
+    const res = await axios.post("/api/v1/users/logout", {}, {
       withCredentials: true,
     });
 
