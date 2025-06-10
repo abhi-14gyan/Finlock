@@ -65,12 +65,12 @@ const Dashboard = () => {
     },
     light: {
       background: 'bg-gradient-to-br from-white via-slate-400 to-white',
-      card: 'bg-white/90 border-slate-200/70',
-      input: 'bg-slate-50 border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500',
+      card: 'bg-white/50 border-slate-200/70',
+      input: 'bg-slate-60 border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500',
       text: {
-        primary: 'text-gray-900',
-        secondary: 'text-gray-600',
-        muted: 'text-gray-500'
+        primary: 'text-black-900',
+        secondary: 'text-black-600',
+        muted: 'text-black-500'
       },
       decorativeOrbs: {
         first: 'bg-purple-200/30',
@@ -260,7 +260,7 @@ const Dashboard = () => {
             <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
           </div>
           {/* Work Account */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px]`}>
+          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}>
             <div className="flex justify-between items-start mb-4">
               <h3 className={`font-semibold ${theme.text.primary}`}>Work</h3>
               <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
@@ -284,7 +284,7 @@ const Dashboard = () => {
           </div>
 
           {/* Personal Account */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px]`}>
+          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}>
             <div className="flex justify-between items-start mb-4">
               <h3 className={`font-semibold ${theme.text.primary}`}>Personal</h3>
               <div className="w-3 h-3 bg-green-400 rounded-full"></div>
