@@ -24,8 +24,6 @@ const Dashboard = () => {
   const handleClick = () => {
     setOpenDrawer(true);
   };
-
-<<<<<<< HEAD
 const handleLogout = async () => {
   try {
     const res = await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
@@ -44,29 +42,6 @@ const handleLogout = async () => {
     console.error("Logout failed:", error?.response?.data?.message || error.message);
   }
 };
-=======
-  const handleLogout = async () => {
-    try {
-      await axios.post("http://localhost:4000/api/v1/users/logout", {}, {
-        withCredentials: true, // Send cookies to clear session on backend
-      });
-
-      // Clear user from context (not localStorage)
-      setUser(null);
-
-      toast.success("Logout successful");
-      navigate("/");
-    } catch (error) {
-      toast.error("Logout failed. Please try again.");
-      console.error("Logout failed:", error?.response?.data?.message || error.message);
-    }
-  };
->>>>>>> fbdc47d8485fa031c6bf0e617d30a707cfccb567
-
-
-
-
-
   const themeStyles = {
     dark: {
       background: 'bg-[#0F0F1C]',
