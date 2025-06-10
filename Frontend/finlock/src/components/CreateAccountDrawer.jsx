@@ -66,7 +66,7 @@ export function CreateAccountDrawer({ open, setOpen, children}) {
                 <input
                   type="text"
                   className="w-full px-3 py-2 border rounded bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-purple-500"
-                  placeholder="e.g., Main Checking"
+                  placeholder="e.g., Personal account"
                   {...register("name")}
                 />
                 {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
