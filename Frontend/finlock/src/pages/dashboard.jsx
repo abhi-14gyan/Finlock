@@ -11,15 +11,20 @@ const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState('personal');
   const navigate = useNavigate();
-  const { setUser } = useAuth();
-  const { user, checkingAuth } = useAuth();
+  const { user, setUser, checkingAuth } = useAuth();
   const [openDrawer, setOpenDrawer] = useState(false);
   // 🔐 Protect the route
   useEffect(() => {
-    if (!checkingAuth && !user) {
-      navigate("/signin");
+    if (!checkingAuth) {
+      if (!user) {
+        navigate("/signin");
+      }
     }
-  }, [checkingAuth, user, navigate]);
+  }, [user, checkingAuth, navigate]);
+
+  if (checkingAuth) {
+    return <div>Loading...</div>; // or your skeleton loader
+  }
 
   const handleClick = () => {
     setOpenDrawer(true);

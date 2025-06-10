@@ -5,6 +5,7 @@ import SignInPage from './pages/Signin';
 import NeoWealthLanding from './pages/landingpage';
 import RegisterPage from './pages/Register';
 import Dashboard from './pages/dashboard';
+import { AuthProvider } from "./context/AuthContext";
 
 import './App.css';
 
