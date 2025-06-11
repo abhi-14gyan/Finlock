@@ -5,7 +5,7 @@ import { accountSchema } from "../model/zod.model";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export function CreateAccountDrawer({ open, setOpen, children }) {
+export function CreateAccountDrawer({ open, setOpen, onClose, children }) {
   const [loading, setLoading] = useState(false);
 
   const {
@@ -43,7 +43,7 @@ export function CreateAccountDrawer({ open, setOpen, children }) {
       if (response.data.success) {
         toast.success("Account created successfully");
         reset();
-        setOpen(false);
+        onClose();
       } else {
         toast.error(response.data.message || "Account creation failed");
       }
