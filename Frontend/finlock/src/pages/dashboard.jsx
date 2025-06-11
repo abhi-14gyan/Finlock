@@ -24,11 +24,12 @@ const Dashboard = () => {
       }
     }
   }, [user, checkingAuth, navigate]);
-
+  
   // Fetch accounts from database
   const fetchAccounts = async () => {
     try {
       setLoading(true);
+      console.log("Reached here");
       const response = await axios.get('/api/v1/dashboard/accounts', {
         withCredentials: true,
       });
@@ -42,12 +43,15 @@ const Dashboard = () => {
       console.error('Error fetching accounts:', error);
       toast.error('Failed to fetch accounts');
     } finally {
+      console.log("Reached finally");
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user?.id) {
+    // console.log("Reached useEffect")
+    if (user?._id) {
+      // console.log("User found");
       fetchAccounts();
     }
   }, [user]);
