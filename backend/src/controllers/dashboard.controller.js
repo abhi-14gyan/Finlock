@@ -1,18 +1,35 @@
 const Account = require("../models/account.model");
 const Transaction = require("../models/transaction.model");
-const  User  = require("../models/user.model.js");
+const User = require("../models/user.model.js");
 const asyncHandler = require("../utils/asyncHandler.js");
 const { ApiError } = require("../utils/apiError.js");
 
-// Utility to convert Decimal128 to Number
+// Utility to convert Decimal128 to Number for accounts
+const serializeAccount = (obj) => {
+  // Handle both lean objects and Mongoose documents
+  const data = obj._doc ? obj._doc : obj;
+  const serialized = { ...data };
+  
+  if (serialized.balance) {
+    serialized.balance = parseFloat(serialized.balance.toString());
+  }
+  
+  return serialized;
+};
+
+// Utility to convert Decimal128 to Number for transactions
 const serializeTransaction = (obj) => {
-  const serialized = { ...obj._doc };
+  // Handle both lean objects and Mongoose documents
+  const data = obj._doc ? obj._doc : obj;
+  const serialized = { ...data };
+  
   if (serialized.balance) {
     serialized.balance = parseFloat(serialized.balance.toString());
   }
   if (serialized.amount) {
     serialized.amount = parseFloat(serialized.amount.toString());
   }
+  
   return serialized;
 };
 
@@ -24,8 +41,14 @@ exports.getUserAccounts = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .lean();
 
-  const serializedAccounts = accounts.map(serializeTransaction);
-  res.status(200).json(serializedAccounts);
+  const serializedAccounts = accounts.map(serializeAccount);
+  
+  console.log('Fetched accounts:', serializedAccounts); // Debug log
+  
+  res.status(200).json({
+    success: true,
+    data: serializedAccounts
+  });
 });
 
 // POST /api/v1/dashboard/accounts
@@ -55,7 +78,7 @@ exports.createAccount = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: serializeTransaction(account),
+    data: serializeAccount(account),
   });
 });
 
@@ -66,5 +89,9 @@ exports.getDashboardData = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find({ userId }).sort({ date: -1 });
 
   const serialized = transactions.map(serializeTransaction);
-  res.status(200).json(serialized);
+  
+  res.status(200).json({
+    success: true,
+    data: serialized
+  });
 });
