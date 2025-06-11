@@ -89,6 +89,10 @@ const Dashboard = () => {
     }
   };
 
+  const handleAccountClick = (accountId) => {
+  navigate(`/account/${accountId}`);
+};
+
   const themeStyles = {
     dark: {
       background: 'bg-[#0F0F1C]',
@@ -346,6 +350,7 @@ const Dashboard = () => {
             {accounts.map((account) => (
               <div
                 key={account._id}
+                onClick={() => handleAccountClick(account._id)}
                 className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
               >
                 <div className="flex justify-between items-start mb-4">
