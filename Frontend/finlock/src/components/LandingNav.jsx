@@ -34,7 +34,7 @@ export default function LandingNav() {
           </a>
           <a
             href="/signin"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
           >
             {(user? "Dashboard" : "Login")}
           </a>

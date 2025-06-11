@@ -3,6 +3,13 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus,LogOut,Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
+import { useAuth } from "../context/AuthContext";
+
+//components
+import logo from "../assets/Finlocklogo.png";
 
 const AccountPage = () => {
   const { accountId } = useParams();
@@ -15,6 +22,9 @@ const AccountPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('Last Month');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTransactions, setSelectedTransactions] = useState([]);
+  const { user, setUser, checkingAuth } = useAuth();
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const themeStyles = {
     dark: {
@@ -177,6 +187,26 @@ const AccountPage = () => {
     );
   }
 
+  const handleLogout = async () => {
+    try {
+      const res = await axios.post("/api/v1/users/logout", {}, {
+        withCredentials: true,
+      });
+
+      if (res.status === 200) {
+        setUser(null); // Important for UI state update
+        toast.success(res.data?.message || "Logout successful");
+        navigate("/");
+      } else {
+        throw new Error("Unexpected status during logout");
+      }
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout failed:", error?.response?.data?.message || error.message);
+    }
+  };
+
+
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
       {/* Decorative background orbs */}
@@ -188,6 +218,77 @@ const AccountPage = () => {
 
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         {/* Header */}
+          <div className="flex justify-between items-center mb-8 flex-wrap md:flex-nowrap">
+  {/* Logo */}
+  <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
+    <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
+    <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
+  </div>
+
+  {/* Desktop Buttons */}
+  <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
+    <button
+      onClick={() => setIsDark(!isDark)}
+      className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
+    >
+      {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
+    </button>
+
+    <button onClick={()=>navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+      <LayoutGrid className="w-4 h-4" />
+      <span>Dashboard</span>
+    </button>
+
+    <button
+      onClick={handleLogout}
+      className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
+    >
+      <LogOut className="w-4 h-4" />
+      <span>Logout</span>
+    </button>
+
+    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+      <User className="w-5 h-5 text-white" />
+    </div>
+  </div>
+
+  {/* Mobile Menu Toggle */}
+  <div className="flex md:hidden items-center ml-auto mt-4">
+    <button
+      onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+      className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
+    >
+      <Menu className="w-6 h-6 text-black dark:text-white" />
+    </button>
+  </div>
+
+  {/* Mobile Dropdown */}
+  {mobileMenuOpen && (
+    <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
+      <button
+        onClick={() => setIsDark(!isDark)}
+        className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
+      >
+        {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+        <span className={`${theme.text.primary}`}>Toggle Theme</span>
+      </button>
+
+      <button onClick={()=>navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
+        <LayoutGrid className="w-4 h-4" />
+        <span>Dashboard</span>
+      </button>
+
+      <button
+        onClick={handleLogout}
+        className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
+      >
+        <LogOut className="w-4 h-4" />
+        <span>Logout</span>
+      </button>
+    </div>
+  )}
+</div>
+
         <div className="flex justify-between items-start mb-8">
           <div>
             <h1 className={`text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#6366F1' }}>
