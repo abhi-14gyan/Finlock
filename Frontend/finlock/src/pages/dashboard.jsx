@@ -24,7 +24,7 @@ const Dashboard = () => {
       }
     }
   }, [user, checkingAuth, navigate]);
-  
+
   // Fetch accounts from database
   const fetchAccounts = async () => {
     try {
@@ -33,7 +33,7 @@ const Dashboard = () => {
       const response = await axios.get('/api/v1/dashboard/accounts', {
         withCredentials: true,
       });
-      
+
       if (response.status === 200) {
         // Backend now returns { success: true, data: accounts }
         setAccounts(response.data.data || []);
@@ -90,8 +90,26 @@ const Dashboard = () => {
   };
 
   const handleAccountClick = (accountId) => {
-  navigate(`/account/${accountId}`);
+    navigate(`/account/${accountId}`);
+  };
+
+  const changeDefaultAccount = async (account) => {
+  if (account.isDefault) {
+    toast.error("At least one default account is required");
+    return;
+  }
+
+  try {
+    const res = await axios.put(`/api/v1/account/default/${account._id}`, {}, { withCredentials: true });
+    toast.success("Default account updated");
+    fetchAccounts(); // Refresh accounts after update
+  } catch (error) {
+    console.error(error);
+    const message = error.response?.data?.message || "Failed to update default account";
+    toast.error(message);
+  }
 };
+
 
   const themeStyles = {
     dark: {
@@ -154,7 +172,7 @@ const Dashboard = () => {
   // Function to get account type color
   const getAccountTypeColor = (type, isDefault) => {
     if (isDefault) return 'bg-green-400';
-    
+
     switch (type?.toLowerCase()) {
       case 'savings':
       case 'savings account':
@@ -320,7 +338,7 @@ const Dashboard = () => {
 
         {/* Account Cards */}
         <CreateAccountDrawer open={openDrawer} setOpen={setOpenDrawer} onClose={handleDrawerClose} />
-        
+
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Loading skeleton */}
@@ -333,7 +351,7 @@ const Dashboard = () => {
               <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
             </div>
 
-            
+
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -357,7 +375,21 @@ const Dashboard = () => {
                   <h3 className={`font-semibold ${theme.text.primary}`}>
                     {capitalizeFirst(account.name)}
                   </h3>
-                  <div className={`w-3 h-3 rounded-full ${getAccountTypeColor(account.type, account.isDefault)}`}></div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click nav
+                      changeDefaultAccount(account);
+                    }}
+                    className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${account.isDefault ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                  >
+                    <span
+                      className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${account.isDefault ? 'translate-x-6' : 'translate-x-1'
+                        }`}
+                    />
+                  </button>
+
+                  {/* <div className={`w-3 h-3 rounded-full ${getAccountTypeColor(account.type, account.isDefault)}`}></div> */}
                 </div>
                 <div className="mb-4">
                   <span className={`text-2xl font-bold ${theme.text.primary}`}>
