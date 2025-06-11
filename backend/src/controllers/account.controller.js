@@ -4,39 +4,43 @@ const { ApiError } = require("../utils/apiError.js");
 const { ApiResponse } = require("../utils/apiResponse.js");
 // Utility to convert Decimal128 to Number
 const serializeDecimal = (obj) => {
-  const serialized = { ...obj._doc };
-  if (obj.balance) serialized.balance = parseFloat(obj.balance.toString());
-  if (obj.amount) serialized.amount = parseFloat(obj.amount.toString());
+  const serialized = { ...(obj._doc || obj) };
+
+  for (const key in serialized) {
+    if (serialized[key]?._bsontype === 'Decimal128') {
+      serialized[key] = parseFloat(serialized[key].toString());
+    }
+  }
+
   return serialized;
 };
 
 // GET account with transactions
-exports.getAccountWithTransactions = async (req, res) => {
-  const userId = req.user._id; // assuming auth middleware sets req.user
+exports.getAccountWithTransactions = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const account = await Account.findOne({
+      _id: req.params.accountId,
+      userId,
+    }).lean();
 
-  const account = await Account.findOne({
-    _id: req.params.accountId,
-    userId
-  })
-    .lean()
-    .populate({
-      path: 'transactions',
-      options: { sort: { date: -1 } }
-    });
+    if (!account) {
+      return res.status(404).json({ message: 'Account not found' });
+    }
 
-  if (!account) {
-    throw new ApiError(404, 'Account not found');
+    const transactions = await Transaction.find({ accountId: account._id }).sort({ date: -1 });
+
+    return res.status(200).json(new ApiResponse(200, {
+      ...serializeDecimal(account),
+      transactions: transactions.map(serializeDecimal),
+      _count: { transactions: transactions.length },
+    }));
+  } catch (err) {
+    console.error("Server error:", err);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
-
-  const transactions = await Transaction.find({ accountId: account._id }).sort({ date: -1 });
-  const serializedTransactions = transactions.map(serializeDecimal);
-
-  res.status(200).json(new ApiResponse(200, {
-    ...serializeDecimal(account),
-    transactions: serializedTransactions,
-    _count: { transactions: serializedTransactions.length }
-  }));
 };
+
 
 // DELETE multiple transactions & update balances
 exports.bulkDeleteTransactions = async (req, res) => {

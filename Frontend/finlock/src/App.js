@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from './components/ProtectedRoute';
 //Pages
 import NeoWealthLanding from './pages/landingpage';
+import AccountsPage from './pages/account.jsx';
 import RegisterPage from './pages/Register';
 const Dashboard = lazy(() => import("./pages/dashboard.jsx"));
 const SignInPage = lazy(() => import("./pages/Signin.jsx"));
@@ -18,6 +19,7 @@ function App() {
         <Route path="/register" element={<RegisterPage/>}/>
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
         <Route path="/signin" element={<SignInPage/>}/>
+        <Route path="/account/:accountId" element={<AccountsPage/>}/>
 
       </Routes>
       </Suspense>
