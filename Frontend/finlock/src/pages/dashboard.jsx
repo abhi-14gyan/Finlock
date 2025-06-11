@@ -6,6 +6,9 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
+import { useTheme } from "../context/ThemeContext";
+//components
+import logo from "../assets/Finlocklogo.png";
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
@@ -15,7 +18,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user, setUser, checkingAuth } = useAuth();
   const [openDrawer, setOpenDrawer] = useState(false);
-
+  
   // 🔐 Protect the route
   useEffect(() => {
     if (!checkingAuth) {
@@ -94,21 +97,21 @@ const Dashboard = () => {
   };
 
   const changeDefaultAccount = async (account) => {
-  if (account.isDefault) {
-    toast.error("At least one default account is required");
-    return;
-  }
+    if (account.isDefault) {
+      toast.error("At least one default account is required");
+      return;
+    }
 
-  try {
-    const res = await axios.put(`/api/v1/account/default/${account._id}`, {}, { withCredentials: true });
-    toast.success("Default account updated");
-    fetchAccounts(); // Refresh accounts after update
-  } catch (error) {
-    console.error(error);
-    const message = error.response?.data?.message || "Failed to update default account";
-    toast.error(message);
-  }
-};
+    try {
+      const res = await axios.put(`/api/v1/account/default/${account._id}`, {}, { withCredentials: true });
+      toast.success("Default account updated");
+      fetchAccounts(); // Refresh accounts after update
+    } catch (error) {
+      console.error(error);
+      const message = error.response?.data?.message || "Failed to update default account";
+      toast.error(message);
+    }
+  };
 
 
   const themeStyles = {
@@ -207,8 +210,11 @@ const Dashboard = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-4">
-            <div className={`${theme.text.primary} text-2xl font-bold`}>
-              <span style={{ color: '#FFD700' }}>Finlock</span>
+            <div onClick={() => navigate("/")} className="flex items-center space-x-3 hover:scale-105 transition-transform cursor-pointer">
+              <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
+              <span className={`text-2xl font-bold  ${theme.text.primary}`} >
+                Finlock
+              </span>
             </div>
           </div>
           <div className="flex items-center space-x-4">
@@ -228,7 +234,7 @@ const Dashboard = () => {
             >
               Logout
             </button>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
               <User className="w-5 h-5 text-white" />
             </div>
           </div>
@@ -260,12 +266,12 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Recent Transactions */}
           <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center mb-4 ">
               <h2 className={`text-lg font-semibold ${theme.text.primary}`}>Recent Transactions</h2>
               <select
                 value={selectedAccount}
                 onChange={(e) => setSelectedAccount(e.target.value)}
-                className={`${theme.input} rounded-lg px-3 py-1 text-sm border focus:outline-none focus:ring-2`}
+                className={`${theme.input} rounded-lg px-3 py-1 text-sm border focus:outline-none focus:ring-2 hover:scale-105 transition-transform cursor-pointer`}
               >
                 {accounts.map((account) => (
                   <option key={account._id} value={account.name.toLowerCase()}>

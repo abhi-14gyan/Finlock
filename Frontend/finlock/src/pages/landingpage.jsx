@@ -19,15 +19,15 @@ const FinlockLanding = () => {
     return () => clearInterval(interval);
   }, []);
 
-   const checkAuth = () => {
-  if (!checkingAuth) {
-    if (user) {
-      navigate("/dashboard");
-    } else {
-      navigate("/signin");
+  const checkAuth = () => {
+    if (!checkingAuth) {
+      if (user) {
+        navigate("/dashboard");
+      } else {
+        navigate("/signin");
+      }
     }
-  }
-};
+  };
 
 
   const stats = [
@@ -127,7 +127,7 @@ const FinlockLanding = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-1000 to-slate-900 text-white">
       {/* Hero Section */}
-      <LandingNav/>
+      <LandingNav />
       <section className="text-center py-10 px-6 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-3xl"></div>
         <div className="relative z-10 max-w-4xl mx-auto">
@@ -135,17 +135,17 @@ const FinlockLanding = () => {
             <Zap className="w-4 h-4 mr-2 text-cyan-400" />
             <span className="text-sm text-cyan-300">AI-Powered Financial Intelligence</span>
           </div>
-          
+
           <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
             Finlock <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Your Personal</span>
             <br />
             AI Financial Companion
           </h1>
-          
+
           <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
             Manage expenses, create smart budgets, and unlock powerful AI-driven insights — all in one futuristic platform.
           </p>
-          
+
           <button onClick={checkAuth} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
             Get Started for Free
             <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
@@ -154,8 +154,8 @@ const FinlockLanding = () => {
       </section>
 
       {/*image1*/}
-      <TiltedImageSection/>
-      
+      <TiltedImageSection />
+
       {/*why finlock*/}
       <section className="py-10 px-6">
         <div className="max-w-6xl mx-auto">
@@ -196,7 +196,7 @@ const FinlockLanding = () => {
               Everything you need to manage your finances with quantum-level precision
             </p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div key={index} className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 group">
@@ -219,20 +219,17 @@ const FinlockLanding = () => {
               Get Started with Finlock Today
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {activationSteps.map((step, index) => (
-              <div key={index} className={`relative bg-slate-800/30 backdrop-blur-sm border rounded-2xl p-8 text-center transition-all duration-500 ${
-                activeStep === index ? 'border-cyan-400 bg-slate-800/60 scale-105' : 'border-slate-700/50'
-              }`}>
-                <div className={`absolute -top-4 -right-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${
-                  activeStep === index ? 'bg-gradient-to-r from-pink-400 to-purple-500' : 'bg-slate-700'
+              <div key={index} className={`relative bg-slate-800/30 backdrop-blur-sm border rounded-2xl p-8 text-center transition-all duration-500 ${activeStep === index ? 'border-cyan-400 bg-slate-800/60 scale-105' : 'border-slate-700/50'
                 }`}>
+                <div className={`absolute -top-4 -right-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${activeStep === index ? 'bg-gradient-to-r from-pink-400 to-purple-500' : 'bg-slate-700'
+                  }`}>
                   {step.step}
                 </div>
-                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 ${
-                  activeStep === index ? 'bg-gradient-to-r from-cyan-400 to-blue-500' : 'bg-slate-700'
-                }`}>
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 ${activeStep === index ? 'bg-gradient-to-r from-cyan-400 to-blue-500' : 'bg-slate-700'
+                  }`}>
                   <step.icon className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
@@ -251,7 +248,7 @@ const FinlockLanding = () => {
               User Testimonials
             </h2>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <div key={index} className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105">
