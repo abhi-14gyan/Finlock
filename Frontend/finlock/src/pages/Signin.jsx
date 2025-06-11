@@ -55,7 +55,7 @@ export default function SignInPage() {
     if (user) {
       toast.success("Already Signed in");
     }
-    window.location.href = "/api/v1/auth/google";
+    window.location.href = "http://localhost:4000/api/v1/auth/google";
   };
 
   const handleSignUpRedirect = () => {
