@@ -10,9 +10,12 @@ import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
   const [selectedAccount, setSelectedAccount] = useState('personal');
+  const [accounts, setAccounts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user, setUser, checkingAuth } = useAuth();
   const [openDrawer, setOpenDrawer] = useState(false);
+
   // 🔐 Protect the route
   useEffect(() => {
     if (!checkingAuth) {
@@ -22,6 +25,39 @@ const Dashboard = () => {
     }
   }, [user, checkingAuth, navigate]);
 
+  // Fetch accounts from database
+  const fetchAccounts = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/v1/dashboard/accounts', {
+        withCredentials: true,
+      });
+      
+      if (response.status === 200) {
+        // Backend now returns { success: true, data: accounts }
+        setAccounts(response.data.data || []);
+        console.log('Accounts loaded:', response.data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching accounts:', error);
+      toast.error('Failed to fetch accounts');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchAccounts();
+    }
+  }, [user]);
+
+  // Refresh accounts when drawer closes (after creating new account)
+  const handleDrawerClose = () => {
+    setOpenDrawer(false);
+    fetchAccounts(); // Refresh the accounts list
+  };
+
   if (checkingAuth) {
     return <div>Loading...</div>; // or your skeleton loader
   }
@@ -29,24 +65,26 @@ const Dashboard = () => {
   const handleClick = () => {
     setOpenDrawer(true);
   };
-const handleLogout = async () => {
-  try {
-    const res = await axios.post("/api/v1/users/logout", {}, {
-      withCredentials: true,
-    });
 
-    if (res.status === 200) {
-      setUser(null); // Important for UI state update
-      toast.success(res.data?.message || "Logout successful");
-      navigate("/");
-    } else {
-      throw new Error("Unexpected status during logout");
+  const handleLogout = async () => {
+    try {
+      const res = await axios.post("/api/v1/users/logout", {}, {
+        withCredentials: true,
+      });
+
+      if (res.status === 200) {
+        setUser(null); // Important for UI state update
+        toast.success(res.data?.message || "Logout successful");
+        navigate("/");
+      } else {
+        throw new Error("Unexpected status during logout");
+      }
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+      console.error("Logout failed:", error?.response?.data?.message || error.message);
     }
-  } catch (error) {
-    toast.error("Logout failed. Please try again.");
-    console.error("Logout failed:", error?.response?.data?.message || error.message);
-  }
-};
+  };
+
   const themeStyles = {
     dark: {
       background: 'bg-[#0F0F1C]',
@@ -101,15 +139,34 @@ const handleLogout = async () => {
     { name: 'travel', value: 1251.66, color: '#84CC16' }
   ];
 
-  const accounts = {
-    work: { balance: 5941.00, type: 'Current Account' },
-    personal: { balance: 152124.40, type: 'Savings Account' }
-  };
-
   const budgetUsed = 4217.12;
   const budgetTotal = 7000.00;
   const budgetPercentage = (budgetUsed / budgetTotal) * 100;
 
+  // Function to get account type color
+  const getAccountTypeColor = (type, isDefault) => {
+    if (isDefault) return 'bg-green-400';
+    
+    switch (type?.toLowerCase()) {
+      case 'savings':
+      case 'savings account':
+        return 'bg-blue-400';
+      case 'current':
+      case 'current account':
+        return 'bg-yellow-400';
+      case 'investment':
+        return 'bg-purple-400';
+      case 'credit':
+        return 'bg-red-400';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
+  // Function to capitalize first letter
+  const capitalizeFirst = (str) => {
+    return str?.charAt(0).toUpperCase() + str?.slice(1) || '';
+  };
 
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
@@ -184,8 +241,11 @@ const handleLogout = async () => {
                 onChange={(e) => setSelectedAccount(e.target.value)}
                 className={`${theme.input} rounded-lg px-3 py-1 text-sm border focus:outline-none focus:ring-2`}
               >
-                <option value="personal">personal</option>
-                <option value="work">work</option>
+                {accounts.map((account) => (
+                  <option key={account._id} value={account.name.toLowerCase()}>
+                    {account.name}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="space-y-3">
@@ -251,65 +311,82 @@ const handleLogout = async () => {
         </div>
 
         {/* Account Cards */}
-        <CreateAccountDrawer open={openDrawer} setOpen={setOpenDrawer} />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Add New Account */}
-          <div
-            onClick={handleClick}
-            className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
-          >
-            <Plus className={`w-12 h-12 ${theme.text.secondary} mb-3`} />
-            <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
-          </div>
-          {/* Work Account */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}>
-            <div className="flex justify-between items-start mb-4">
-              <h3 className={`font-semibold ${theme.text.primary}`}>Work</h3>
-              <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+        <CreateAccountDrawer open={openDrawer} setOpen={setOpenDrawer} onClose={handleDrawerClose} />
+        
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Loading skeleton */}
+            {/* Add New Account */}
+            <div
+              onClick={handleClick}
+              className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
+            >
+              <Plus className={`w-12 h-12 ${theme.text.secondary} mb-3`} />
+              <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
             </div>
-            <div className="mb-4">
-              <span className={`text-2xl font-bold ${theme.text.primary}`}>
-                ${accounts.work.balance.toFixed(2)}
-              </span>
-              <p className={`${theme.text.muted} text-sm`}>{accounts.work.type}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
-                <ArrowUp className="w-4 h-4 text-green-500" />
-                <span className={`${theme.text.secondary} text-sm`}>Income</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <ArrowDown className="w-4 h-4 text-red-500" />
-                <span className={`${theme.text.secondary} text-sm`}>Expense</span>
-              </div>
-            </div>
-          </div>
 
-          {/* Personal Account */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}>
-            <div className="flex justify-between items-start mb-4">
-              <h3 className={`font-semibold ${theme.text.primary}`}>Personal</h3>
-              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-            </div>
-            <div className="mb-4">
-              <span className={`text-2xl font-bold ${theme.text.primary}`}>
-                ${accounts.personal.balance.toFixed(2)}
-              </span>
-              <p className={`${theme.text.muted} text-sm`}>{accounts.personal.type}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-1">
-                <ArrowUp className="w-4 h-4 text-green-500" />
-                <span className={`${theme.text.secondary} text-sm`}>Income</span>
-              </div>
-            </div>
+            
           </div>
-        </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Add New Account */}
+            <div
+              onClick={handleClick}
+              className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
+            >
+              <Plus className={`w-12 h-12 ${theme.text.secondary} mb-3`} />
+              <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
+            </div>
+
+            {/* Dynamic Account Cards */}
+            {accounts.map((account) => (
+              <div
+                key={account._id}
+                className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
+              >
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className={`font-semibold ${theme.text.primary}`}>
+                    {capitalizeFirst(account.name)}
+                  </h3>
+                  <div className={`w-3 h-3 rounded-full ${getAccountTypeColor(account.type, account.isDefault)}`}></div>
+                </div>
+                <div className="mb-4">
+                  <span className={`text-2xl font-bold ${theme.text.primary}`}>
+                    ${parseFloat(account.balance).toFixed(2)}
+                  </span>
+                  <p className={`${theme.text.muted} text-sm`}>
+                    {capitalizeFirst(account.type)}
+                    {account.isDefault && <span className="text-green-400 ml-2">(Default)</span>}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-1">
+                    <ArrowUp className="w-4 h-4 text-green-500" />
+                    <span className={`${theme.text.secondary} text-sm`}>Income</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <ArrowDown className="w-4 h-4 text-red-500" />
+                    <span className={`${theme.text.secondary} text-sm`}>Expense</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Show message if no accounts */}
+            {accounts.length === 0 && (
+              <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] col-span-full`}>
+                <p className={`${theme.text.secondary} text-center`}>
+                  No accounts found. Create your first account to get started!
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center mt-12">
           <p className={`${theme.text.muted} text-sm`}>
-            Powered by Finlcok
+            Powered by Finlock
           </p>
         </div>
       </div>

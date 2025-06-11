@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {accountSchema} from "../model/zod.model";
+import { accountSchema } from "../model/zod.model";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-export function CreateAccountDrawer({ open, setOpen, children}) {
+export function CreateAccountDrawer({ open, setOpen, children }) {
   const [loading, setLoading] = useState(false);
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
     setValue,
     watch,
@@ -25,12 +24,19 @@ export function CreateAccountDrawer({ open, setOpen, children}) {
     },
   });
 
-  const onSubmit = async (data) => {
+  const handleClick = async () => {
+    const formData = {
+      name: watch("name"),
+      type: watch("type"),
+      balance: watch("balance"),
+      isDefault: watch("isDefault"),
+    };
+
     try {
       setLoading(true);
       const response = await axios.post(
-        "/api/v1/account/create",
-        data,
+        "/api/v1/dashboard/accounts",
+        formData,
         { withCredentials: true }
       );
 
@@ -60,7 +66,7 @@ export function CreateAccountDrawer({ open, setOpen, children}) {
               <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-white">Account Name</label>
                 <input
@@ -119,9 +125,9 @@ export function CreateAccountDrawer({ open, setOpen, children}) {
                   Cancel
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleClick}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                  disabled={loading}
                 >
                   {loading ? "Creating..." : "Create Account"}
                 </button>
