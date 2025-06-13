@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Plus,LogOut,Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
+import { Plus, LogOut, Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth } from "../context/AuthContext";
@@ -25,6 +25,8 @@ const AccountPage = () => {
   const { user, setUser, checkingAuth } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalIncome, setTotalIncome] = useState(0);
 
   const themeStyles = {
     dark: {
@@ -65,29 +67,6 @@ const AccountPage = () => {
 
   const theme = isDark ? themeStyles.dark : themeStyles.light;
 
-  // Mock data for demonstration - replace with actual API data
-  const mockAccountData = {
-    // name: 'Personal',
-    // type: 'Savings Account',
-    // balance: 152113.90,
-    transactionCount: 188,
-    totalIncome: 57378.46,
-    totalExpenses: 16118.94,
-    netAmount: 41259.52,
-    transactions: [
-      { id: 1, date: 'Dec 12, 2024', description: 'Flat Rent (Recurring)', category: 'Rental', amount: -1500.00, recurring: 'One-time' },
-      { id: 2, date: 'Dec 8, 2024', description: 'Netflix (Recurring)', category: 'Entertainment', amount: -10.00, recurring: 'One-time' },
-      { id: 3, date: 'Dec 5, 2024', description: 'Paid for shopping', category: 'Shopping', amount: -157.21, recurring: 'One-time' },
-      { id: 4, date: 'Dec 5, 2024', description: 'Received salary', category: 'Salary', amount: 5549.52, recurring: 'One-time' },
-      { id: 5, date: 'Dec 4, 2024', description: 'Paid for shopping', category: 'Shopping', amount: -418.58, recurring: 'One-time' },
-      { id: 6, date: 'Dec 3, 2024', description: 'Paid for shopping', category: 'Shopping', amount: -227.26, recurring: 'One-time' },
-      { id: 7, date: 'Dec 3, 2024', description: 'Received salary', category: 'Salary', amount: 6189.10, recurring: 'One-time' },
-      { id: 8, date: 'Dec 2, 2024', description: 'Received freelance', category: 'Freelance', amount: 2864.91, recurring: 'One-time' },
-      { id: 9, date: 'Dec 2, 2024', description: 'Paid for shopping', category: 'Shopping', amount: -358.08, recurring: 'One-time' },
-      { id: 10, date: 'Dec 2, 2024', description: 'Paid for travel', category: 'Travel', amount: -1251.66, recurring: 'One-time' }
-    ]
-  };
-
   // Chart data for the last month
   const chartData = [
     { date: 'Nov 15', income: 3000, expense: 0 },
@@ -114,13 +93,25 @@ const AccountPage = () => {
   ];
 
   const categoryColors = {
-    'Rental': '#F59E0B',
-    'Entertainment': '#8B5CF6',
-    'Shopping': '#EC4899',
-    'Salary': '#10B981',
-    'Freelance': '#06B6D4',
-    'Travel': '#06B6D4'
+    // INCOME
+    salary: '#10B981',           // Emerald
+    freelance: '#06B6D4',        // Cyan
+    investments: '#3B82F6',      // Blue
+    'other-income': '#6366F1',   // Indigo
+
+    // EXPENSE
+    housing: '#F59E0B',          // Amber
+    transportation: '#EF4444',   // Red
+    groceries: '#22C55E',        // Green
+    utilities: '#EAB308',        // Yellow
+    entertainment: '#8B5CF6',    // Violet
+    food: '#F97316',             // Orange
+    shopping: '#EC4899',         // Pink
+    healthcare: '#DB2777',       // Fuchsia
+    education: '#0EA5E9',        // Sky Blue
+    travel: '#9333EA'            // Purple
   };
+
 
   useEffect(() => {
     const fetchAccountDetails = async () => {
@@ -143,6 +134,8 @@ const AccountPage = () => {
 
     fetchAccountDetails();
   }, [accountId]);
+
+
 
   const handleSelectAll = (checked) => {
     if (checked) {
@@ -170,6 +163,18 @@ const AccountPage = () => {
   const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
   const startIndex = (currentPage - 1) * transactionsPerPage;
   const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
+
+    useEffect(() => {
+    let income = 0;
+    let expenses = 0;
+    paginatedTransactions.forEach((t) => {
+      const amount = parseFloat(t.amount);
+      if (t.type === "INCOME") income += amount;
+      else if (t.type === "EXPENSE") expenses += amount;
+    });
+    setTotalIncome(income);
+    setTotalExpenses(expenses);
+  }, [paginatedTransactions]); // runs when transactions change
 
   if (loading) {
     return (
@@ -206,6 +211,7 @@ const AccountPage = () => {
     }
   };
 
+  
 
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
@@ -218,76 +224,76 @@ const AccountPage = () => {
 
       <div className="relative z-10 p-6 max-w-7xl mx-auto">
         {/* Header */}
-          <div className="flex justify-between items-center mb-8 flex-wrap md:flex-nowrap">
-  {/* Logo */}
-  <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
-    <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
-    <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
-  </div>
+        <div className="flex justify-between items-center mb-8 flex-wrap md:flex-nowrap">
+          {/* Logo */}
+          <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
+            <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
+            <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
+          </div>
 
-  {/* Desktop Buttons */}
-  <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
-    <button
-      onClick={() => setIsDark(!isDark)}
-      className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
-    >
-      {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
-    </button>
+          {/* Desktop Buttons */}
+          <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
+            >
+              {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
+            </button>
 
-    <button onClick={()=>navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
-      <LayoutGrid className="w-4 h-4" />
-      <span>Dashboard</span>
-    </button>
+            <button onClick={() => navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+              <LayoutGrid className="w-4 h-4" />
+              <span>Dashboard</span>
+            </button>
 
-    <button
-      onClick={handleLogout}
-      className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
-    >
-      <LogOut className="w-4 h-4" />
-      <span>Logout</span>
-    </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
 
-    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
-      <User className="w-5 h-5 text-white" />
-    </div>
-  </div>
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+              <User className="w-5 h-5 text-white" />
+            </div>
+          </div>
 
-  {/* Mobile Menu Toggle */}
-  <div className="flex md:hidden items-center ml-auto mt-4">
-    <button
-      onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-      className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
-    >
-      <Menu className="w-6 h-6 text-black dark:text-white" />
-    </button>
-  </div>
+          {/* Mobile Menu Toggle */}
+          <div className="flex md:hidden items-center ml-auto mt-4">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
+            >
+              <Menu className="w-6 h-6 text-black dark:text-white" />
+            </button>
+          </div>
 
-  {/* Mobile Dropdown */}
-  {mobileMenuOpen && (
-    <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
-      <button
-        onClick={() => setIsDark(!isDark)}
-        className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
-      >
-        {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-        <span className={`${theme.text.primary}`}>Toggle Theme</span>
-      </button>
+          {/* Mobile Dropdown */}
+          {mobileMenuOpen && (
+            <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
+              >
+                {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+                <span className={`${theme.text.primary}`}>Toggle Theme</span>
+              </button>
 
-      <button onClick={()=>navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
-        <LayoutGrid className="w-4 h-4" />
-        <span>Dashboard</span>
-      </button>
+              <button onClick={() => navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
+                <LayoutGrid className="w-4 h-4" />
+                <span>Dashboard</span>
+              </button>
 
-      <button
-        onClick={handleLogout}
-        className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
-      >
-        <LogOut className="w-4 h-4" />
-        <span>Logout</span>
-      </button>
-    </div>
-  )}
-</div>
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="flex justify-between items-start mb-8">
           <div>
@@ -316,7 +322,7 @@ const AccountPage = () => {
         <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 mb-8`}>
           <div className="flex justify-between items-center mb-6">
             <h2 className={`text-xl font-semibold ${theme.text.primary}`}>Transaction Overview</h2>
-            <select 
+            <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
               className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
@@ -333,19 +339,19 @@ const AccountPage = () => {
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Income</div>
               <div className="text-2xl font-bold text-green-500">
-                ${accountData?.totalIncome?.toFixed(2) || '57378.46'}
+                ${totalIncome}
               </div>
             </div>
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Expenses</div>
               <div className="text-2xl font-bold text-red-500">
-                ${accountData?.totalExpenses?.toFixed(2) || '16118.94'}
+                ${totalExpenses}
               </div>
             </div>
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Net</div>
               <div className="text-2xl font-bold text-green-500">
-                ${accountData?.netAmount?.toFixed(2) || '41259.52'}
+                ${totalIncome-totalExpenses}
               </div>
             </div>
           </div>
@@ -354,8 +360,8 @@ const AccountPage = () => {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: theme.text.secondary.includes('white') ? '#9CA3AF' : '#6B7280' }}
@@ -363,7 +369,7 @@ const AccountPage = () => {
                   textAnchor="end"
                   height={60}
                 />
-                <YAxis 
+                <YAxis
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: theme.text.secondary.includes('white') ? '#9CA3AF' : '#6B7280' }}
@@ -400,7 +406,7 @@ const AccountPage = () => {
             />
           </div>
           <div className="flex space-x-4">
-            <select 
+            <select
               value={selectedFilter}
               onChange={(e) => setSelectedFilter(e.target.value)}
               className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
@@ -464,15 +470,15 @@ const AccountPage = () => {
                     {transaction.description}
                   </div>
                   <div className="col-span-2">
-                    <span 
+                    <span
                       className="px-3 py-1 rounded-full text-xs font-medium text-white"
-                      style={{ backgroundColor: categoryColors[transaction.category] || '#6B7280' }}
+                      style={{ backgroundColor: categoryColors[transaction.category] }}
                     >
                       {transaction.category}
                     </span>
                   </div>
-                  <div className={`col-span-2 font-semibold ${transaction.amount < 0 ? 'text-red-500' : 'text-green-500'}`}>
-                    {transaction.amount < 0 ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
+                  <div className={`col-span-2 font-semibold ${transaction.type === "EXPENSE" ? 'text-red-500' : 'text-green-500'}`}>
+                    {transaction.type === "EXPENSE" ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
                   </div>
                   <div className={`col-span-1 ${theme.text.secondary} text-sm flex items-center`}>
                     <Clock className="w-4 h-4 mr-1" />
