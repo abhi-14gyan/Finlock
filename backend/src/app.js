@@ -33,6 +33,7 @@ const userRouter = require("./routes/user.routes.js");
 const authRouter = require("./routes/auth.routes.js"); // ✅ NEW: Import Google OAuth router
 const accRouter = require("./routes/account.routes.js");
 const dashboardRoutes = require("./routes/dashboard.routes");
+const budgetRoutes = require("./routes/budget.routes.js");
 
 
 
@@ -41,5 +42,5 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/account", accRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/dashboard", dashboardRoutes);
-
+app.use('/api/v1', budgetRoutes);
 module.exports = { app };
