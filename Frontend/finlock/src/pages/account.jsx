@@ -18,7 +18,7 @@ const AccountPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All Types');
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
   const [selectedPeriod, setSelectedPeriod] = useState('Last Month');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTransactions, setSelectedTransactions] = useState([]);
@@ -27,6 +27,7 @@ const AccountPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
+  const [transactionCount, settransactionCount] = useState(0);
 
   const themeStyles = {
     dark: {
@@ -153,28 +154,46 @@ const AccountPage = () => {
     }
   };
 
-  const filteredTransactions = accountData?.transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = selectedFilter === 'All Types' || transaction.category === selectedFilter;
-    return matchesSearch && matchesFilter;
-  }) || [];
+  // const filteredTransactions = accountData?.transactions.filter(transaction => {
+  //   const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesFilter = selectedCategory === 'All Types' || transaction.category === selectedCategory;
+  //   return matchesSearch && matchesFilter;
+  // }) || [];
+
+  const filteredTransactions = (accountData?.transactions || []).filter(transaction => {
+  return (
+    (selectedCategory === "All Categories" || transaction.category === selectedCategory) &&
+    (searchTerm === "" || transaction.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+});
+
+
 
   const transactionsPerPage = 10;
   const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
   const startIndex = (currentPage - 1) * transactionsPerPage;
-  const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
+  //const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
 
-    useEffect(() => {
+  // Apply pagination to filtered transactions
+const paginatedTransactions = filteredTransactions.slice(
+  (currentPage - 1) * transactionsPerPage,
+  currentPage * transactionsPerPage
+);
+
+  useEffect(() => {
+    let count = 0;
     let income = 0;
     let expenses = 0;
-    paginatedTransactions.forEach((t) => {
+    filteredTransactions.forEach((t) => {
+      count++;
       const amount = parseFloat(t.amount);
       if (t.type === "INCOME") income += amount;
       else if (t.type === "EXPENSE") expenses += amount;
     });
     setTotalIncome(income);
     setTotalExpenses(expenses);
-  }, [paginatedTransactions]); // runs when transactions change
+    settransactionCount(count);
+  }, [filteredTransactions]); // runs when transactions change
 
   if (loading) {
     return (
@@ -211,7 +230,7 @@ const AccountPage = () => {
     }
   };
 
-  
+
 
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
@@ -297,7 +316,7 @@ const AccountPage = () => {
 
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className={`text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#6366F1' }}>
+            <h1 className={`text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#EAB308' }}>
               {accountData.name}
             </h1>
             <p className={`${theme.text.secondary} text-lg`}>{accountData.type}</p>
@@ -307,7 +326,7 @@ const AccountPage = () => {
               ${accountData.balance.toFixed(2)}
             </div>
             <p className={`${theme.text.secondary}`}>
-              {accountData?.transactionCount || "0"} Transactions
+              {transactionCount} Transactions
             </p>
             <button
               onClick={() => setIsDark(!isDark)}
@@ -345,13 +364,13 @@ const AccountPage = () => {
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Expenses</div>
               <div className="text-2xl font-bold text-red-500">
-                ${totalExpenses}
+                ${totalExpenses.toFixed(2)}
               </div>
             </div>
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Net</div>
               <div className="text-2xl font-bold text-green-500">
-                ${totalIncome-totalExpenses}
+                ${totalIncome - totalExpenses}
               </div>
             </div>
           </div>
@@ -407,23 +426,31 @@ const AccountPage = () => {
           </div>
           <div className="flex space-x-4">
             <select
-              value={selectedFilter}
-              onChange={(e) => setSelectedFilter(e.target.value)}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
               className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
             >
-              <option>All Types</option>
-              <option>Rental</option>
-              <option>Entertainment</option>
-              <option>Shopping</option>
-              <option>Salary</option>
-              <option>Freelance</option>
-              <option>Travel</option>
+              <option>All Categories</option>
+              <optgroup label="Income">
+                <option value="salary">Salary</option>
+                <option value="freelance">Freelance</option>
+                <option value="investments">Investments</option>
+                <option value="other-income">Other Income</option>
+              </optgroup>
+              <optgroup label="Expenses">
+                <option value="housing">Housing</option>
+                <option value="transportation">Transportation</option>
+                <option value="groceries">Groceries</option>
+                <option value="utilities">Utilities</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="food">Food</option>
+                <option value="shopping">Shopping</option>
+                <option value="healthcare">Healthcare</option>
+                <option value="education">Education</option>
+                <option value="travel">Travel</option>
+              </optgroup>
             </select>
-            <select className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}>
-              <option>All Transactions</option>
-              <option>Income Only</option>
-              <option>Expenses Only</option>
-            </select>
+
           </div>
         </div>
 
@@ -482,7 +509,7 @@ const AccountPage = () => {
                   </div>
                   <div className={`col-span-1 ${theme.text.secondary} text-sm flex items-center`}>
                     <Clock className="w-4 h-4 mr-1" />
-                    {transaction.recurring}
+                    {transaction.isRecurring ? "YES" : "NO"}
                   </div>
                   <div className="col-span-1 flex justify-end">
                     <button className={`p-1 hover:bg-gray-100 rounded ${theme.text.secondary}`}>
@@ -503,14 +530,14 @@ const AccountPage = () => {
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-lg ${theme.card} border hover:bg-gray-50/5 disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`p-2 rounded-lg ${theme.card} border bg-white hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-lg ${theme.card} border hover:bg-gray-50/5 disabled:opacity-50 disabled:cursor-not-allowed`}
+                className={`p-2 rounded-lg ${theme.card} border bg-white hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
