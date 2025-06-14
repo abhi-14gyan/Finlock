@@ -141,6 +141,8 @@ const AccountPage = () => {
   }, [accountId]);
 
 
+
+
   const handleSort = (field) => {
     setSortConfig(current => ({
       field,
@@ -148,13 +150,15 @@ const AccountPage = () => {
         current.field === field && current.direction === "asc" ? "desc" : "asc",
     }))
   }
-  const handleSelectAll = (checked) => {
-    setSelectedTransactions((current) =>
-      current.length === paginatedTransactions.length
-        ? []
-        : paginatedTransactions.map((t) => t.id)
-    );
-  };
+  const handleSelectAll = (isChecked) => {
+  if (isChecked) {
+    const allIds = paginatedTransactions.map(t => t._id);
+    setSelectedTransactions(allIds);
+  } else {
+    setSelectedTransactions([]);
+  }
+};
+
 
   const handleSelectTransaction = (id) => {
     setSelectedTransactions(current => current.includes(id) ? current.filter(item => item != id) : [...current, id])
@@ -390,7 +394,7 @@ const AccountPage = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: theme.text.secondary.includes('white') ? '#9CA3AF' : '#6B7280' }}
-                  angle={-45}
+                  angle={-30}
                   textAnchor="end"
                   height={60}
                 />
@@ -496,13 +500,13 @@ const AccountPage = () => {
           {/* Table Body */}
           <div className="divide-y divide-gray-200">
             {paginatedTransactions.map((transaction) => (
-              <div key={transaction.id} className={`px-6 py-4 hover:bg-gray-50/5 transition-colors`}>
+              <div key={transaction._id} className={`px-6 py-4 hover:bg-gray-50/5 transition-colors`}>
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-1">
                     <input
                       type="checkbox"
-                      onChange={() => handleSelectTransaction(transaction.id)}
-                      checked={selectedTransactions.includes(transaction.id)}
+                      onChange={() => handleSelectTransaction(transaction._id)}
+                      checked={selectedTransactions.includes(transaction._id)}
                       className="rounded border-gray-300"
                     />
                   </div>
