@@ -95,3 +95,28 @@ exports.getDashboardData = asyncHandler(async (req, res) => {
     data: serialized
   });
 });
+
+// DELETE /api/v1/dashboard/accounts/:accountId
+exports.deleteAccount = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const accountId = req.params.accountId;
+
+  const account = await Account.findOne({
+    _id: accountId,
+    userId,
+  });
+
+  if (!account) {
+    throw new ApiError(404, "Account not found or unauthorized");
+  }
+
+  // Optional: delete associated transactions
+  await Transaction.deleteMany({ accountId });
+
+  await account.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "Account and its transactions deleted successfully",
+  });
+});

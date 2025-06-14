@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { Plus, Sun, Moon,LogOut,Menu, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
+import { Plus, Sun, Moon, LogOut, Menu, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import { useTheme } from "../context/ThemeContext";
 //components
 import logo from "../assets/Finlocklogo.png";
 import BudgetProgress from '../components/BudgetProgress';
+import AccountDropdown from '../components/accountCardDropdown';
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
@@ -47,7 +48,7 @@ const Dashboard = () => {
         console.error("Error fetching budget:", err);
       }
     };
-    
+
     fetchBudget();
   }, [accounts]);
   // Fetch accounts from database
@@ -193,9 +194,9 @@ const Dashboard = () => {
   const budgetUsed = 4217.12;
   const budgetTotal = 7000.00;
   const budgetPercentage = (budgetUsed / budgetTotal) * 100;
-  
 
-  
+
+
   // Function to get account type color
   const getAccountTypeColor = (type, isDefault) => {
     if (isDefault) return 'bg-green-400';
@@ -221,6 +222,11 @@ const Dashboard = () => {
     return str?.charAt(0).toUpperCase() + str?.slice(1) || '';
   };
 
+  const handleAccountDeleted = () => {
+    fetchAccounts();
+    toast.success("Account deleted successfully");
+  };
+
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
       {/* Decorative background orbs */}
@@ -234,99 +240,81 @@ const Dashboard = () => {
         {/* Header */}
 
         <div className="flex justify-between items-center mb-8 flex-wrap md:flex-nowrap">
-      {/* Logo */}
-      <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
-        <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
-        <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
-      </div>
+          {/* Logo */}
+          <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
+            <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
+            <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
+          </div>
 
-      {/* Desktop Buttons */}
-      <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
-        <button
-          onClick={() => setIsDark(!isDark)}
-          className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
-        >
-          {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
-        </button>
+          {/* Desktop Buttons */}
+          <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
+            >
+              {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
+            </button>
 
-        <button className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
-          <Edit2 className="w-4 h-4" />
-          <span>Add Transaction</span>
-        </button>
+            <button className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+              <Edit2 className="w-4 h-4" />
+              <span>Add Transaction</span>
+            </button>
 
-        <button
-          onClick={handleLogout}
-          className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Logout</span>
-        </button>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
 
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
-          <User className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+              <User className="w-5 h-5 text-white" />
+            </div>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <div className="flex md:hidden items-center ml-auto mt-4">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
+            >
+              <Menu className="w-6 h-6 text-black dark:text-white" />
+            </button>
+          </div>
+
+          {/* Mobile Dropdown */}
+          {mobileMenuOpen && (
+            <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
+              <button
+                onClick={() => setIsDark(!isDark)}
+                className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
+              >
+                {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+                <span className={`${theme.text.primary}`}>Toggle Theme</span>
+              </button>
+
+              <button className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
+                <Plus className="w-4 h-4" />
+                <span>Add Transaction</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </button>
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* Mobile Menu Toggle */}
-      <div className="flex md:hidden items-center ml-auto mt-4">
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
-        >
-          <Menu className="w-6 h-6 text-black dark:text-white" />
-        </button>
-      </div>
-
-      {/* Mobile Dropdown */}
-      {mobileMenuOpen && (
-        <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
-          >
-            {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-            <span className={`${theme.text.primary}`}>Toggle Theme</span>
-          </button>
-
-          <button className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
-            <Plus className="w-4 h-4" />
-            <span>Add Transaction</span>
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>Logout</span>
-          </button>
-        </div>
-      )}
-    </div>
 
         {/* Dashboard Title */}
         <h1 className={`text-4xl font-bold ${theme.text.primary} mb-8`}>Dashboard</h1>
 
         {/* Budget Section */}
-        {/* <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 mb-8`}>
-          <div className="flex justify-between items-center mb-4">
-            <h2 className={`text-lg font-semibold ${theme.text.primary}`}>Monthly Budget (Default Account)</h2>
-            <Edit2 className={`w-4 h-4 ${theme.text.secondary}`} />
-          </div>
-          <div className="mb-2">
-            <span className={`${theme.text.secondary} text-sm`}>
-              ${budgetUsed.toFixed(2)} of ${budgetTotal.toFixed(2)} spent
-            </span>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
-            <div
-              className="bg-black h-2 rounded-full transition-all duration-300"
-              style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
-            ></div>
-          </div>
-          <span className={`${theme.text.muted} text-sm`}>{budgetPercentage.toFixed(1)}% used</span>
-        </div> */}
-        <BudgetProgress currentExpenses={budgetData?.currentExpenses} isDark={isDark}/>
+        <BudgetProgress currentExpenses={budgetData?.currentExpenses} isDark={isDark} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Recent Transactions */}
           <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
@@ -368,48 +356,48 @@ const Dashboard = () => {
 
           {/* Monthly Expense Breakdown */}
           <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
-  <h2 className={`text-lg font-semibold ${theme.text.primary} mb-4`}>Monthly Expense Breakdown</h2>
+            <h2 className={`text-lg font-semibold ${theme.text.primary} mb-4`}>Monthly Expense Breakdown</h2>
 
-  {/* Responsive flex layout */}
-  <div className="flex flex-col sm:flex-row items-center justify-center">
-    
-    {/* Chart container with responsive width/height */}
-    <div className="w-40 h-40 sm:w-48 sm:h-48 mb-4 sm:mb-0">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={expenseData}
-            cx="50%"
-            cy="50%"
-            innerRadius={50}
-            outerRadius={70}
-            paddingAngle={2}
-            dataKey="value"
-          >
-            {expenseData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+            {/* Responsive flex layout */}
+            <div className="flex flex-col sm:flex-row items-center justify-center">
 
-    {/* Legend */}
-    <div className="sm:ml-6 space-y-2 text-center sm:text-left">
-      {expenseData.map((item, index) => (
-        <div key={index} className="flex items-center justify-center sm:justify-start space-x-2">
-          <div
-            className="w-3 h-3 rounded-full"
-            style={{ backgroundColor: item.color }}
-          ></div>
-          <span className={`${theme.text.secondary} text-sm`}>
-            {item.name}: ${item.value.toFixed(2)}
-          </span>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
+              {/* Chart container with responsive width/height */}
+              <div className="w-40 h-40 sm:w-48 sm:h-48 mb-4 sm:mb-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={expenseData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={70}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {expenseData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Legend */}
+              <div className="sm:ml-6 space-y-2 text-center sm:text-left">
+                {expenseData.map((item, index) => (
+                  <div key={index} className="flex items-center justify-center sm:justify-start space-x-2">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: item.color }}
+                    ></div>
+                    <span className={`${theme.text.secondary} text-sm`}>
+                      {item.name}: ${item.value.toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Account Cards */}
@@ -451,9 +439,11 @@ const Dashboard = () => {
                   <h3 className={`font-semibold ${theme.text.primary}`}>
                     {capitalizeFirst(account.name)}
                   </h3>
+
+                  {/* Default Account Switch (Click Protected) */}
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click nav
+                      e.stopPropagation(); // Prevent navigation
                       changeDefaultAccount(account);
                     }}
                     className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${account.isDefault ? 'bg-green-500' : 'bg-gray-300'
@@ -465,8 +455,17 @@ const Dashboard = () => {
                     />
                   </button>
 
-                  {/* <div className={`w-3 h-3 rounded-full ${getAccountTypeColor(account.type, account.isDefault)}`}></div> */}
+                  {/* Account Dropdown (Click Protected) */}
+                  <div
+                    onClick={(e) => e.stopPropagation()} // Stop card click from triggering
+                  >
+                    <AccountDropdown
+                      accountId={account._id}
+                      onDeleteSuccess={handleAccountDeleted}
+                    />
+                  </div>
                 </div>
+
                 <div className="mb-4">
                   <span className={`text-2xl font-bold ${theme.text.primary}`}>
                     ${parseFloat(account.balance).toFixed(2)}
