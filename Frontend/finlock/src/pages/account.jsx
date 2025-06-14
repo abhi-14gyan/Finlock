@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
-import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react';
 import { Plus, LogOut, Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -22,6 +22,10 @@ const AccountPage = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('Last Month');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTransactions, setSelectedTransactions] = useState([]);
+  const [SortConfig, setSortConfig] = useState({
+    field: "date",
+    direction: "desc",
+  })
   const { user, setUser, checkingAuth } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -137,21 +141,23 @@ const AccountPage = () => {
   }, [accountId]);
 
 
-
+  const handleSort = (field) => {
+    setSortConfig(current => ({
+      field,
+      direction:
+        current.field === field && current.direction === "asc" ? "desc" : "asc",
+    }))
+  }
   const handleSelectAll = (checked) => {
-    if (checked) {
-      setSelectedTransactions(accountData.transactions.map(t => t.id));
-    } else {
-      setSelectedTransactions([]);
-    }
+    setSelectedTransactions((current) =>
+      current.length === paginatedTransactions.length
+        ? []
+        : paginatedTransactions.map((t) => t.id)
+    );
   };
 
-  const handleSelectTransaction = (id, checked) => {
-    if (checked) {
-      setSelectedTransactions([...selectedTransactions, id]);
-    } else {
-      setSelectedTransactions(selectedTransactions.filter(selectedId => selectedId !== id));
-    }
+  const handleSelectTransaction = (id) => {
+    setSelectedTransactions(current => current.includes(id) ? current.filter(item => item != id) : [...current, id])
   };
 
   // const filteredTransactions = accountData?.transactions.filter(transaction => {
@@ -161,11 +167,11 @@ const AccountPage = () => {
   // }) || [];
 
   const filteredTransactions = (accountData?.transactions || []).filter(transaction => {
-  return (
-    (selectedCategory === "All Categories" || transaction.category === selectedCategory) &&
-    (searchTerm === "" || transaction.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-});
+    return (
+      (selectedCategory === "All Categories" || transaction.category === selectedCategory) &&
+      (searchTerm === "" || transaction.description.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  });
 
 
 
@@ -175,10 +181,10 @@ const AccountPage = () => {
   //const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
 
   // Apply pagination to filtered transactions
-const paginatedTransactions = filteredTransactions.slice(
-  (currentPage - 1) * transactionsPerPage,
-  currentPage * transactionsPerPage
-);
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * transactionsPerPage,
+    currentPage * transactionsPerPage
+  );
 
   useEffect(() => {
     let count = 0;
@@ -467,12 +473,22 @@ const paginatedTransactions = filteredTransactions.slice(
                   className="rounded border-gray-300"
                 />
               </div>
-              <div className={`col-span-2 font-medium ${theme.text.secondary} text-sm flex items-center`}>
-                Date <ChevronDown className="w-4 h-4 ml-1" />
-              </div>
+              <button onClick={() => handleSort("date")}
+                className={`col-span-2 font-medium ${theme.text.secondary} text-sm flex items-center px-3 py-1 rounded-md`}>
+                Date {SortConfig.field === "date" && (SortConfig.direction === "asc" ? (<ChevronUp className="w-4 h-4 ml-1" />) : (
+                  <ChevronDown className="w-4 h-4 ml-1" />))}
+              </button>
               <div className={`col-span-3 font-medium ${theme.text.secondary} text-sm`}>Description</div>
-              <div className={`col-span-2 font-medium ${theme.text.secondary} text-sm`}>Category</div>
-              <div className={`col-span-2 font-medium ${theme.text.secondary} text-sm`}>Amount</div>
+              <button onClick={() => handleSort("category")}
+                className={`col-span-2 font-medium ${theme.text.secondary} text-sm flex items-center px-3 py-1 rounded-md`}>
+                Category {SortConfig.field === "category" && (SortConfig.direction === "asc" ? (<ChevronUp className="w-4 h-4 ml-1" />) : (
+                  <ChevronDown className="w-4 h-4 ml-1" />))}
+              </button>
+              <button onClick={() => handleSort("amount")}
+                className={`col-span-2 font-medium ${theme.text.secondary} text-sm flex items-center px-3 py-1 rounded-md`}>
+                Amount {SortConfig.field === "amount" && (SortConfig.direction === "asc" ? (<ChevronUp className="w-4 h-4 ml-1" />) : (
+                  <ChevronDown className="w-4 h-4 ml-1" />))}
+              </button>
               <div className={`col-span-2 font-medium ${theme.text.secondary} text-sm`}>Recurring</div>
             </div>
           </div>
@@ -485,8 +501,8 @@ const paginatedTransactions = filteredTransactions.slice(
                   <div className="col-span-1">
                     <input
                       type="checkbox"
+                      onChange={() => handleSelectTransaction(transaction.id)}
                       checked={selectedTransactions.includes(transaction.id)}
-                      onChange={(e) => handleSelectTransaction(transaction.id, e.target.checked)}
                       className="rounded border-gray-300"
                     />
                   </div>
