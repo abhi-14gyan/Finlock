@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useMemo} from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
-import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react';
+import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight, ChevronUp, Trash, X } from 'lucide-react';
 import { Plus, LogOut, Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -20,6 +20,7 @@ const AccountPage = () => {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedType, setselectedType] = useState("All Types");
   const [selectedPeriod, setSelectedPeriod] = useState('Last Month');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedTransactions, setSelectedTransactions] = useState([]);
@@ -152,18 +153,26 @@ const AccountPage = () => {
     }))
   }
   const handleSelectAll = (isChecked) => {
-  if (isChecked) {
-    const allIds = paginatedTransactions.map(t => t._id);
-    setSelectedTransactions(allIds);
-  } else {
-    setSelectedTransactions([]);
-  }
-};
+    if (isChecked) {
+      const allIds = paginatedTransactions.map(t => t._id);
+      setSelectedTransactions(allIds);
+    } else {
+      setSelectedTransactions([]);
+    }
+  };
 
 
   const handleSelectTransaction = (id) => {
     setSelectedTransactions(current => current.includes(id) ? current.filter(item => item != id) : [...current, id])
   };
+
+  const handlebulkdelete = () => { }
+  const clearFilters = () => { 
+    setSearchTerm("")
+    setSelectedCategory("All Categories")
+    setselectedType("All Types")
+    setSelectedTransactions([])
+  }
 
   // const filteredTransactions = accountData?.transactions.filter(transaction => {
   //   const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -171,12 +180,53 @@ const AccountPage = () => {
   //   return matchesSearch && matchesFilter;
   // }) || [];
 
-  const filteredTransactions = (accountData?.transactions || []).filter(transaction => {
-    return (
-      (selectedCategory === "All Categories" || transaction.category === selectedCategory) &&
-      (searchTerm === "" || transaction.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredTransactions = useMemo(() => {
+  let result = [...(accountData?.transactions || [])];
+
+  // Apply category filter
+  if (selectedCategory !== "All Categories") {
+    result = result.filter(transaction => transaction.category === selectedCategory);
+  }
+
+  // Apply search filter
+  if (searchTerm.trim() !== "") {
+    const searchLower = searchTerm.toLowerCase();
+    result = result.filter(transaction =>
+      transaction.description?.toLowerCase().includes(searchLower)
     );
+  }
+
+  // Apply recurring filter
+  if (selectedType === "recurring") {
+    result = result.filter(transaction => transaction.isRecurring);
+  } else if (selectedType === "non-recurring") {
+    result = result.filter(transaction => !transaction.isRecurring);
+  }
+
+  // Apply sorting
+  result.sort((a, b) => {
+    let comparison = 0;
+
+    switch (SortConfig.field) {
+      case "date":
+        comparison = new Date(a.date) - new Date(b.date);
+        break;
+      case "amount":
+        comparison = a.amount - b.amount;
+        break;
+      case "category":
+        comparison = a.category.localeCompare(b.category);
+        break;
+      default:
+        comparison = 0;
+    }
+
+    return SortConfig.direction === "asc" ? comparison : -comparison;
   });
+
+  return result;
+}, [accountData?.transactions, selectedCategory, searchTerm, selectedType, SortConfig]);
+
 
 
 
@@ -352,7 +402,7 @@ const AccountPage = () => {
           </div>
           <div className="text-right">
             <div className={`text-3xl font-bold ${theme.text.primary} mb-1`}>
-              ${accountData.balance.toFixed(2)}
+              ₹{accountData.balance.toFixed(2)}
             </div>
             <p className={`${theme.text.secondary}`}>
               {transactionCount} Transactions
@@ -387,19 +437,19 @@ const AccountPage = () => {
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Income</div>
               <div className="text-2xl font-bold text-green-500">
-                ${totalIncome}
+                ₹{totalIncome.toFixed(2)}
               </div>
             </div>
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Expenses</div>
               <div className="text-2xl font-bold text-red-500">
-                ${totalExpenses.toFixed(2)}
+                ₹{totalExpenses.toFixed(2)}
               </div>
             </div>
             <div className="text-center">
               <div className={`text-sm ${theme.text.secondary} mb-1`}>Net</div>
               <div className="text-2xl font-bold text-green-500">
-                ${totalIncome - totalExpenses}
+                ₹{(totalIncome - totalExpenses).toFixed(2)}
               </div>
             </div>
           </div>
@@ -481,6 +531,33 @@ const AccountPage = () => {
             </select>
 
           </div>
+
+          <div className="flex space-x-4">
+            <select
+              value={selectedType}
+              onChange={(e) => setselectedType(e.target.value)}
+              className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
+            >
+              <option>All Types</option>
+              <option value="recurring">Recurring-only</option>
+              <option value="non-recurring">Non-Recurring-only</option>
+            </select>
+
+            {selectedTransactions.length > 0 && <div>
+              <button onClick={handlebulkdelete} className="rounded-lg w-full px-4 py-2 hover:bg-red-100 text-left text-red-600">
+                <div className='flex gap-2'><Trash className='h-5 w-5' />Delete Selected ({selectedTransactions.length})</div>
+              </button>
+            </div>
+            }
+
+            {(selectedCategory !== "All Categories" || selectedType !== "All Types" || searchTerm !== "" || selectedTransactions.length>0) && (
+              <button className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
+               onClick={clearFilters}>
+                <X className="h-4 w-5" />
+              </button>
+            )}
+
+          </div>
         </div>
 
         {/* Transactions Table */}
@@ -544,7 +621,7 @@ const AccountPage = () => {
                     </span>
                   </div>
                   <div className={`col-span-2 font-semibold ${transaction.type === "EXPENSE" ? 'text-red-500' : 'text-green-500'}`}>
-                    {transaction.type === "EXPENSE" ? '-' : '+'}${Math.abs(transaction.amount).toFixed(2)}
+                    {transaction.type === "EXPENSE" ? '-' : '+'}₹{Math.abs(transaction.amount).toFixed(2)}
                   </div>
                   <div className={`col-span-1 ${theme.text.secondary} text-sm flex items-center`}>
                     <Clock className="w-4 h-4 mr-1" />
