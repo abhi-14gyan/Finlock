@@ -42,5 +42,5 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/auth", authRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/account", accRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/dashboard", dashboardRoutes);
-app.use('/api/v1', budgetRoutes);
+app.use('/api/v1/budget', budgetRoutes);
 module.exports = { app };
