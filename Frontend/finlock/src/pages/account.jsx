@@ -142,6 +142,8 @@ const AccountPage = () => {
   }, [accountId]);
 
 
+
+
   const handleSort = (field) => {
     setSortConfig(current => ({
       field,
@@ -149,13 +151,15 @@ const AccountPage = () => {
         current.field === field && current.direction === "asc" ? "desc" : "asc",
     }))
   }
-  const handleSelectAll = (checked) => {
-    setSelectedTransactions((current) =>
-      current.length === paginatedTransactions.length
-        ? []
-        : paginatedTransactions.map((t) => t.id)
-    );
-  };
+  const handleSelectAll = (isChecked) => {
+  if (isChecked) {
+    const allIds = paginatedTransactions.map(t => t._id);
+    setSelectedTransactions(allIds);
+  } else {
+    setSelectedTransactions([]);
+  }
+};
+
 
   const handleSelectTransaction = (id) => {
     setSelectedTransactions(current => current.includes(id) ? current.filter(item => item != id) : [...current, id])
@@ -409,7 +413,7 @@ const AccountPage = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12, fill: theme.text.secondary.includes('white') ? '#9CA3AF' : '#6B7280' }}
-                  angle={-45}
+                  angle={-30}
                   textAnchor="end"
                   height={60}
                 />
