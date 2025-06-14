@@ -7,6 +7,7 @@ import { Plus, LogOut, Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth } from "../context/AuthContext";
+import Dropdown from '../components/Dropdown';
 
 //components
 import logo from "../assets/Finlocklogo.png";
@@ -236,6 +237,24 @@ const AccountPage = () => {
     }
   };
 
+  const deleteFn = (ids) => {
+    // You can call an API here or update state
+    if (!Array.isArray(ids)) return;
+
+    const confirmed = window.confirm("Are you sure you want to delete this transaction?");
+    if (!confirmed) return;
+
+    // Example: filter out deleted IDs from your data
+    setAccountData((prevData) => ({
+      ...prevData,
+      transactions: prevData.transactions.filter((t) => !ids.includes(t.id)),
+    }));
+
+    // Also remove from selected if needed
+    setSelectedTransactions((current) =>
+      current.filter((id) => !ids.includes(id))
+    );
+  };
 
 
   return (
@@ -496,13 +515,13 @@ const AccountPage = () => {
           {/* Table Body */}
           <div className="divide-y divide-gray-200">
             {paginatedTransactions.map((transaction) => (
-              <div key={transaction.id} className={`px-6 py-4 hover:bg-gray-50/5 transition-colors`}>
+              <div key={transaction._id} className={`px-6 py-4 hover:bg-gray-50/5 transition-colors`}>
                 <div className="grid grid-cols-12 gap-4 items-center">
                   <div className="col-span-1">
                     <input
                       type="checkbox"
-                      onChange={() => handleSelectTransaction(transaction.id)}
-                      checked={selectedTransactions.includes(transaction.id)}
+                      onChange={() => handleSelectTransaction(transaction._id)}
+                      checked={selectedTransactions.includes(transaction._id)}
                       className="rounded border-gray-300"
                     />
                   </div>
@@ -528,9 +547,7 @@ const AccountPage = () => {
                     {transaction.isRecurring ? "YES" : "NO"}
                   </div>
                   <div className="col-span-1 flex justify-end">
-                    <button className={`p-1 hover:bg-gray-100 rounded ${theme.text.secondary}`}>
-                      <MoreHorizontal className="w-4 h-4" />
-                    </button>
+                    <Dropdown transaction={transaction} deleteFn={deleteFn} />
                   </div>
                 </div>
               </div>
