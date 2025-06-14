@@ -9,6 +9,7 @@ import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
 import { useTheme } from "../context/ThemeContext";
 //components
 import logo from "../assets/Finlocklogo.png";
+import BudgetProgress from '../components/BudgetProgress';
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
@@ -19,6 +20,7 @@ const Dashboard = () => {
   const { user, setUser, checkingAuth } = useAuth();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [budgetData, setBudgetData] = useState(null);
   // 🔐 Protect the route
   useEffect(() => {
     if (!checkingAuth) {
@@ -28,6 +30,26 @@ const Dashboard = () => {
     }
   }, [user, checkingAuth, navigate]);
 
+  useEffect(() => {
+    const fetchBudget = async () => {
+      const defaultAccount = accounts?.find((account) => account.isDefault);
+      //console.log(defaultAccount);
+      if (!defaultAccount) return;
+
+      try {
+        const res = await axios.get(
+          `/api/v1/budget`,
+          { withCredentials: true }
+        );
+        setBudgetData(res.data);
+        console.log("🎯 Budget API response:", res.data);
+      } catch (err) {
+        console.error("Error fetching budget:", err);
+      }
+    };
+    
+    fetchBudget();
+  }, [accounts]);
   // Fetch accounts from database
   const fetchAccounts = async () => {
     try {
@@ -152,7 +174,7 @@ const Dashboard = () => {
   };
 
   const theme = isDark ? themeStyles.dark : themeStyles.light;
-
+  // setTheme(theme);
   const transactions = [
     { id: 1, title: 'Flat Rent (Recurring)', date: 'Dec 12, 2024', amount: -1500.00, type: 'expense' },
     { id: 2, title: 'Netflix (Recurring)', date: 'Dec 8, 2024', amount: -10.00, type: 'expense' },
@@ -171,7 +193,9 @@ const Dashboard = () => {
   const budgetUsed = 4217.12;
   const budgetTotal = 7000.00;
   const budgetPercentage = (budgetUsed / budgetTotal) * 100;
+  
 
+  
   // Function to get account type color
   const getAccountTypeColor = (type, isDefault) => {
     if (isDefault) return 'bg-green-400';
@@ -284,7 +308,7 @@ const Dashboard = () => {
         <h1 className={`text-4xl font-bold ${theme.text.primary} mb-8`}>Dashboard</h1>
 
         {/* Budget Section */}
-        <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 mb-8`}>
+        {/* <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 mb-8`}>
           <div className="flex justify-between items-center mb-4">
             <h2 className={`text-lg font-semibold ${theme.text.primary}`}>Monthly Budget (Default Account)</h2>
             <Edit2 className={`w-4 h-4 ${theme.text.secondary}`} />
@@ -301,8 +325,8 @@ const Dashboard = () => {
             ></div>
           </div>
           <span className={`${theme.text.muted} text-sm`}>{budgetPercentage.toFixed(1)}% used</span>
-        </div>
-
+        </div> */}
+        <BudgetProgress currentExpenses={budgetData?.currentExpenses} isDark={isDark}/>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Recent Transactions */}
           <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
