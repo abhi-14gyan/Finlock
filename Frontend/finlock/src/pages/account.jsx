@@ -620,6 +620,12 @@ const AccountPage = () => {
             </div>
           </div>
         </div>
+        {/* Footer */}
+        <div className="text-center mt-12">
+          <p className={`${theme.text.muted} text-sm`}>
+            Powered by Finlock
+          </p>
+        </div>
       </div>
     </div>
   );
