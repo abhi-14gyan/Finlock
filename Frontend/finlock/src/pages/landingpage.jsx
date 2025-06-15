@@ -297,7 +297,7 @@ const FinlockLanding = () => {
             <span className="text-xl font-bold">Finlock</span>
           </div>
           <div className="text-gray-400 text-sm">
-            © 2025 Finlock. All rights reserved. | Powered by Neural Intelligence
+            © 2025 Finlock. All rights reserved. | Powered by Finlock
           </div>
         </div>
       </footer>
