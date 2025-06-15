@@ -1,4 +1,4 @@
-import React, { useEffect, useState , useMemo} from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import { useAuth } from "../context/AuthContext";
 import Dropdown from '../components/Dropdown';
+import { AccountBarChart } from '../components/accountchart';
 
 //components
 import logo from "../assets/Finlocklogo.png";
@@ -119,26 +120,26 @@ const AccountPage = () => {
     travel: '#9333EA'            // Purple
   };
 
+  const fetchAccountDetails = async () => {
+    try {
+      const response = await axios.get(`/api/v1/account/${accountId}`, {
+        withCredentials: true,
+      });
+
+      if (response.data && response.data.data) {
+        setAccountData(response.data.data);
+      } else {
+        setError('Account not found');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to fetch account details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchAccountDetails = async () => {
-      try {
-        const response = await axios.get(`/api/v1/account/${accountId}`, {
-          withCredentials: true,
-        });
-
-        if (response.data && response.data.data) {
-          setAccountData(response.data.data);
-        } else {
-          setError('Account not found');
-        }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch account details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAccountDetails();
   }, [accountId]);
 
@@ -166,8 +167,27 @@ const AccountPage = () => {
     setSelectedTransactions(current => current.includes(id) ? current.filter(item => item != id) : [...current, id])
   };
 
-  const handlebulkdelete = () => { }
-  const clearFilters = () => { 
+  const handlebulkdelete = async (transactionIds) => {
+    try {
+      const response = await axios.delete("/api/v1/account/transactions/bulk-delete", {
+        data: { transactionIds },
+        withCredentials: true,
+      });
+
+      toast.success("Deleted Successfully")
+
+      // ✅ Refresh account/transaction data
+      fetchAccountDetails();
+
+      // ✅ clear selection
+      setSelectedTransactions([]);
+    } catch (error) {
+      toast.error("Failed to Delete:");
+    }
+  };
+
+
+  const clearFilters = () => {
     setSearchTerm("")
     setSelectedCategory("All Categories")
     setselectedType("All Types")
@@ -181,51 +201,51 @@ const AccountPage = () => {
   // }) || [];
 
   const filteredTransactions = useMemo(() => {
-  let result = [...(accountData?.transactions || [])];
+    let result = [...(accountData?.transactions || [])];
 
-  // Apply category filter
-  if (selectedCategory !== "All Categories") {
-    result = result.filter(transaction => transaction.category === selectedCategory);
-  }
-
-  // Apply search filter
-  if (searchTerm.trim() !== "") {
-    const searchLower = searchTerm.toLowerCase();
-    result = result.filter(transaction =>
-      transaction.description?.toLowerCase().includes(searchLower)
-    );
-  }
-
-  // Apply recurring filter
-  if (selectedType === "recurring") {
-    result = result.filter(transaction => transaction.isRecurring);
-  } else if (selectedType === "non-recurring") {
-    result = result.filter(transaction => !transaction.isRecurring);
-  }
-
-  // Apply sorting
-  result.sort((a, b) => {
-    let comparison = 0;
-
-    switch (SortConfig.field) {
-      case "date":
-        comparison = new Date(a.date) - new Date(b.date);
-        break;
-      case "amount":
-        comparison = a.amount - b.amount;
-        break;
-      case "category":
-        comparison = a.category.localeCompare(b.category);
-        break;
-      default:
-        comparison = 0;
+    // Apply category filter
+    if (selectedCategory !== "All Categories") {
+      result = result.filter(transaction => transaction.category === selectedCategory);
     }
 
-    return SortConfig.direction === "asc" ? comparison : -comparison;
-  });
+    // Apply search filter
+    if (searchTerm.trim() !== "") {
+      const searchLower = searchTerm.toLowerCase();
+      result = result.filter(transaction =>
+        transaction.description?.toLowerCase().includes(searchLower)
+      );
+    }
 
-  return result;
-}, [accountData?.transactions, selectedCategory, searchTerm, selectedType, SortConfig]);
+    // Apply recurring filter
+    if (selectedType === "recurring") {
+      result = result.filter(transaction => transaction.isRecurring);
+    } else if (selectedType === "non-recurring") {
+      result = result.filter(transaction => !transaction.isRecurring);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      let comparison = 0;
+
+      switch (SortConfig.field) {
+        case "date":
+          comparison = new Date(a.date) - new Date(b.date);
+          break;
+        case "amount":
+          comparison = a.amount - b.amount;
+          break;
+        case "category":
+          comparison = a.category.localeCompare(b.category);
+          break;
+        default:
+          comparison = 0;
+      }
+
+      return SortConfig.direction === "asc" ? comparison : -comparison;
+    });
+
+    return result;
+  }, [accountData?.transactions, selectedCategory, searchTerm, selectedType, SortConfig]);
 
 
 
@@ -416,83 +436,16 @@ const AccountPage = () => {
           </div>
         </div>
 
-        {/* Transaction Overview */}
-        <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 mb-8`}>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className={`text-xl font-semibold ${theme.text.primary}`}>Transaction Overview</h2>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
-            >
-              <option>Last Month</option>
-              <option>Last 3 Months</option>
-              <option>Last 6 Months</option>
-              <option>Last Year</option>
-            </select>
-          </div>
+        {/* Account Bar Chart */}
 
-          {/* Summary Stats */}
-          <div className="grid grid-cols-3 gap-6 mb-6">
-            <div className="text-center">
-              <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Income</div>
-              <div className="text-2xl font-bold text-green-500">
-                ₹{totalIncome.toFixed(2)}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className={`text-sm ${theme.text.secondary} mb-1`}>Total Expenses</div>
-              <div className="text-2xl font-bold text-red-500">
-                ₹{totalExpenses.toFixed(2)}
-              </div>
-            </div>
-            <div className="text-center">
-              <div className={`text-sm ${theme.text.secondary} mb-1`}>Net</div>
-              <div className="text-2xl font-bold text-green-500">
-                ₹{(totalIncome - totalExpenses).toFixed(2)}
-              </div>
-            </div>
-          </div>
+        {accountData?.transactions && (
+          <AccountBarChart transactions={accountData.transactions} />
+        )}
 
-          {/* Chart */}
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
-                <XAxis
-                  dataKey="date"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: theme.text.secondary.includes('white') ? '#9CA3AF' : '#6B7280' }}
-                  angle={-30}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: theme.text.secondary.includes('white') ? '#9CA3AF' : '#6B7280' }}
-                />
-                <Bar dataKey="income" fill="#10B981" radius={[2, 2, 0, 0]} />
-                <Bar dataKey="expense" fill="#EF4444" radius={[2, 2, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
 
-          {/* Legend */}
-          <div className="flex justify-center items-center space-x-6 mt-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-green-500 rounded"></div>
-              <span className={`${theme.text.secondary} text-sm`}>Income</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-red-500 rounded"></div>
-              <span className={`${theme.text.secondary} text-sm`}>Expense</span>
-            </div>
-          </div>
-        </div>
 
         {/* Search and Filters */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mt-10 mb-6">
           <div className="relative flex-1 max-w-md">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${theme.text.muted}`} />
             <input
@@ -543,16 +496,24 @@ const AccountPage = () => {
               <option value="non-recurring">Non-Recurring-only</option>
             </select>
 
-            {selectedTransactions.length > 0 && <div>
-              <button onClick={handlebulkdelete} className="rounded-lg w-full px-4 py-2 hover:bg-red-100 text-left text-red-600">
-                <div className='flex gap-2'><Trash className='h-5 w-5' />Delete Selected ({selectedTransactions.length})</div>
-              </button>
-            </div>
-            }
+            {selectedTransactions.length > 0 && (
+              <div>
+                <button
+                  onClick={() => handlebulkdelete(selectedTransactions)}
+                  className="rounded-lg w-full px-4 py-2 hover:bg-red-100 text-left text-red-600"
+                >
+                  <div className="flex gap-2">
+                    <Trash className="h-5 w-5" />
+                    Delete Selected ({selectedTransactions.length})
+                  </div>
+                </button>
+              </div>
+            )}
 
-            {(selectedCategory !== "All Categories" || selectedType !== "All Types" || searchTerm !== "" || selectedTransactions.length>0) && (
+
+            {(selectedCategory !== "All Categories" || selectedType !== "All Types" || searchTerm !== "" || selectedTransactions.length > 0) && (
               <button className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
-               onClick={clearFilters}>
+                onClick={clearFilters}>
                 <X className="h-4 w-5" />
               </button>
             )}
