@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { format, parseISO } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight, ChevronUp, Trash, X } from 'lucide-react';
 import { Plus, LogOut, Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
@@ -568,7 +569,7 @@ const AccountPage = () => {
                     />
                   </div>
                   <div className={`col-span-2 ${theme.text.primary} text-sm`}>
-                    {transaction.date}
+                    {format(parseISO(transaction.date), "dd-MM-yyyy")}
                   </div>
                   <div className={`col-span-3 ${theme.text.primary} font-medium`}>
                     {transaction.description}
