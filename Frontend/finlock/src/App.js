@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import NeoWealthLanding from './pages/landingpage';
 import AccountsPage from './pages/account.jsx';
 import RegisterPage from './pages/Register';
+import AddTransactionPage from './pages/transaction.jsx';
 const Dashboard = lazy(() => import("./pages/dashboard.jsx"));
 const SignInPage = lazy(() => import("./pages/Signin.jsx"));
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>}/>
         <Route path="/signin" element={<SignInPage/>}/>
         <Route path="/account/:accountId" element={<AccountsPage/>}/>
+        <Route path="/transaction" element={<AddTransactionPage/>}/>
 
       </Routes>
       </Suspense>

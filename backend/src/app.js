@@ -34,7 +34,7 @@ const authRouter = require("./routes/auth.routes.js"); // ✅ NEW: Import Google
 const accRouter = require("./routes/account.routes.js");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const budgetRoutes = require("./routes/budget.routes.js");
-
+const tranRoutes = require("./routes/transaction.routes.js");
 
 
 // Routes declaration
@@ -43,4 +43,5 @@ app.use("/api/v1/auth", authRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/account", accRouter); // ✅ NEW: Use Google OAuth routes
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use('/api/v1/budget', budgetRoutes);
+app.use('/api/v1/transaction', tranRoutes);
 module.exports = { app };
