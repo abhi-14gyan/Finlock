@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { format, parseISO } from "date-fns";
 import { Plus, Sun, Moon, LogOut, Menu, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axios from "axios";
@@ -14,14 +15,17 @@ import AccountDropdown from '../components/accountCardDropdown';
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
-  const [selectedAccount, setSelectedAccount] = useState('personal');
   const [accounts, setAccounts] = useState([]);
+  const [selectedAccount, setSelectedAccount] = useState(
+    accounts.find((a) => a.isDefault)?._id || accounts[0]?._id
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user, setUser, checkingAuth } = useAuth();
   const [openDrawer, setOpenDrawer] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [budgetData, setBudgetData] = useState(null);
+  const [transactions, setTranscations] = useState([]);
   // 🔐 Protect the route
   useEffect(() => {
     if (!checkingAuth) {
@@ -43,7 +47,7 @@ const Dashboard = () => {
           { withCredentials: true }
         );
         setBudgetData(res.data);
-        console.log("🎯 Budget API response:", res.data);
+        //console.log("🎯 Budget API response:", res.data);
       } catch (err) {
         console.error("Error fetching budget:", err);
       }
@@ -55,7 +59,7 @@ const Dashboard = () => {
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      console.log("Reached here");
+      //console.log("Reached here");
       const response = await axios.get('/api/v1/dashboard/accounts', {
         withCredentials: true,
       });
@@ -63,16 +67,45 @@ const Dashboard = () => {
       if (response.status === 200) {
         // Backend now returns { success: true, data: accounts }
         setAccounts(response.data.data || []);
-        console.log('Accounts loaded:', response.data.data);
+        //console.log('Accounts loaded:', response.data.data);
       }
     } catch (error) {
       console.error('Error fetching accounts:', error);
       toast.error('Failed to fetch accounts');
     } finally {
-      console.log("Reached finally");
+      //console.log("Reached finally");
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+  fetchAccounts();
+}, []);
+
+useEffect(() => {
+  if (accounts.length > 0 && !selectedAccount) {
+    const defaultAccount = accounts.find((a) => a.isDefault)?._id || accounts[0]._id;
+    setSelectedAccount(defaultAccount);
+  }
+}, [accounts]);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const response = await axios.get(
+          `/api/v1/dashboard/transactions`,
+          {},
+          { withCredentials: true }
+        );
+        //console.log("Transactions receieved", response.data.data)
+        setTranscations(response.data.data);
+      } catch (error) {
+        console.error("Failed to fetch transactions:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
 
   useEffect(() => {
     // console.log("Reached useEffect")
@@ -176,13 +209,6 @@ const Dashboard = () => {
 
   const theme = isDark ? themeStyles.dark : themeStyles.light;
   // setTheme(theme);
-  const transactions = [
-    { id: 1, title: 'Flat Rent (Recurring)', date: 'Dec 12, 2024', amount: -1500.00, type: 'expense' },
-    { id: 2, title: 'Netflix (Recurring)', date: 'Dec 8, 2024', amount: -10.00, type: 'expense' },
-    { id: 3, title: 'Received salary', date: 'Dec 5, 2024', amount: 5549.52, type: 'income' },
-    { id: 4, title: 'Paid for shopping', date: 'Dec 5, 2024', amount: -157.21, type: 'expense' },
-    { id: 5, title: 'Paid for shopping', date: 'Dec 4, 2024', amount: -418.58, type: 'expense' }
-  ];
 
   const expenseData = [
     { name: 'rental', value: 1500.00, color: '#EF4444' },
@@ -194,8 +220,6 @@ const Dashboard = () => {
   const budgetUsed = 4217.12;
   const budgetTotal = 7000.00;
   const budgetPercentage = (budgetUsed / budgetTotal) * 100;
-
-
 
   // Function to get account type color
   const getAccountTypeColor = (type, isDefault) => {
@@ -227,6 +251,20 @@ const Dashboard = () => {
     toast.success("Account deleted successfully");
   };
 
+  // Filter transactions for selected account
+  // console.log("Selected Account:", selectedAccount);
+  // console.log("All transactions:", transactions.map(t => ({ id: t.accountId, title: t.title })));
+
+  const accountTransactions = transactions.filter(
+    (t) => t.accountId === selectedAccount
+  );
+  //console.log("Account Transactions :", accountTransactions)
+  // Get recent transactions (last 5)
+  const recentTransactions = accountTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+
+  //console.log(recentTransactions)
+
+
   return (
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
       {/* Decorative background orbs */}
@@ -255,7 +293,7 @@ const Dashboard = () => {
               {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
             </button>
 
-            <button onClick={()=>navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+            <button onClick={() => navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
               <Edit2 className="w-4 h-4" />
               <span>Add Transaction</span>
             </button>
@@ -294,7 +332,7 @@ const Dashboard = () => {
                 <span className={`${theme.text.primary}`}>Toggle Theme</span>
               </button>
 
-              <button onClick={()=>navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
+              <button onClick={() => navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Transaction</span>
               </button>
@@ -326,27 +364,28 @@ const Dashboard = () => {
                 className={`${theme.input} rounded-lg px-3 py-1 text-sm border focus:outline-none focus:ring-2 hover:scale-105 transition-transform cursor-pointer`}
               >
                 {accounts.map((account) => (
-                  <option key={account._id} value={account.name.toLowerCase()}>
+                  <option key={account._id} value={account._id}>
                     {account.name}
                   </option>
                 ))}
               </select>
             </div>
             <div className="space-y-3">
-              {transactions.map((transaction) => (
+              {recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="flex justify-between items-center py-2">
                   <div>
                     <h3 className={`font-medium ${theme.text.primary} text-sm`}>{transaction.title}</h3>
-                    <p className={`${theme.text.muted} text-xs`}>{transaction.date}</p>
+                    <p className={`${theme.text.muted} text-xs`}>
+                      {format(parseISO(transaction.date), "dd-MM-yyyy hh:mm a")}</p>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {transaction.type === 'income' ? (
+                    {transaction.type === 'INCOME' ? (
                       <ArrowUp className="w-4 h-4 text-green-500" />
                     ) : (
                       <ArrowDown className="w-4 h-4 text-red-500" />
                     )}
-                    <span className={`font-semibold ${transaction.type === 'income' ? 'text-green-500' : 'text-red-500'}`}>
-                      ${Math.abs(transaction.amount).toFixed(2)}
+                    <span className={`font-semibold ${transaction.type === 'INCOME' ? 'text-green-500' : 'text-red-500'}`}>
+                      ₹{Math.abs(transaction.amount).toFixed(2)}
                     </span>
                   </div>
                 </div>
