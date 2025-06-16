@@ -7,11 +7,11 @@ exports.getCurrentBudget = async (req, res) => {
   try {
     const userId = new mongoose.Types.ObjectId(req.user._id); // Fix for ObjectId
 
-    console.log("🔍 userId from req.user._id:", req.user._id);
-    console.log("➡️ type:", typeof req.user._id);
+    // console.log("🔍 userId from req.user._id:", req.user._id);
+    // console.log("➡️ type:", typeof req.user._id);
     
     const budget = await Budget.findOne({ userId });
-    console.log("📦 Budget found:", budget);
+    // console.log("📦 Budget found:", budget);
     
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

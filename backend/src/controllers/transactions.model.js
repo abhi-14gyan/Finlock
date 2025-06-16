@@ -3,6 +3,8 @@ const Account = require("../models/account.model");
 const User = require("../models/user.model");
 const asyncHandler = require("../utils/asyncHandler");
 const { ApiError } = require("../utils/apiError");
+const mongoose = require("mongoose");
+const { Decimal128 } = mongoose.Types;
 
 // Helper: parse Decimal128 and format amount
 const serializeAmount = (txn) => {
@@ -17,6 +19,7 @@ const serializeAmount = (txn) => {
 exports.createTransaction = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const data = req.body;
+  console.log("Request body:", data);
 
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
@@ -27,21 +30,32 @@ exports.createTransaction = asyncHandler(async (req, res) => {
   });
   if (!account) throw new ApiError(404, "Account not found");
 
-  const balanceChange = data.type === "EXPENSE" ? -data.amount : data.amount;
+  // Convert amount to Decimal128
+  const amountDecimal = Decimal128.fromString(data.amount.toString());
+
+  // Calculate new balance using Decimal128 logic
+  const balanceChange = data.type === "EXPENSE"
+    ? -parseFloat(data.amount)
+    : parseFloat(data.amount);
+
   const newBalance = parseFloat(account.balance.toString()) + balanceChange;
 
   const session = await Transaction.startSession();
   session.startTransaction();
 
   try {
-    const transaction = await Transaction.create([{
-      ...data,
-      userId,
-      nextRecurringDate:
-        data.isRecurring && data.recurringInterval
-          ? calculateNextRecurringDate(data.date, data.recurringInterval)
-          : null,
-    }], { session });
+    const transaction = await Transaction.create(
+      [{
+        ...data,
+        userId,
+        amount: amountDecimal, // ✅ corrected here
+        nextRecurringDate:
+          data.isRecurring && data.recurringInterval
+            ? calculateNextRecurringDate(data.date, data.recurringInterval)
+            : null,
+      }],
+      { session }
+    );
 
     await Account.updateOne(
       { _id: data.accountId },
@@ -57,11 +71,13 @@ exports.createTransaction = asyncHandler(async (req, res) => {
       data: serializeAmount(transaction[0]),
     });
   } catch (err) {
+    console.error("Transaction creation failed:", err); // Add this for debug
     await session.abortTransaction();
     session.endSession();
     throw new ApiError(500, "Transaction failed: " + err.message);
   }
 });
+
 
 // Get a transaction
 exports.getTransaction = asyncHandler(async (req, res) => {

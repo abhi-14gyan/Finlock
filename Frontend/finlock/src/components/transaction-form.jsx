@@ -1,7 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, Loader2, X } from 'lucide-react';
 import axios from 'axios';
-import { toast } from 'react-toastify'; 
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+// Theme styles configuration
+const themeStyles = {
+    dark: {
+        background: 'bg-[#0F0F1C]',
+        card: 'bg-[#1C1C2E]/90 border-[#2D2D40]/60',
+        input: 'bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:ring-purple-500',
+        text: {
+            primary: 'text-white',
+            secondary: 'text-gray-400',
+            muted: 'text-gray-500'
+        },
+        decorativeOrbs: {
+            first: 'bg-purple-600/30',
+            second: 'bg-pink-500/30',
+            third: 'bg-indigo-500/30'
+        },
+        divider: 'border-[#2E2E3A]',
+        dividerBg: 'bg-[#1A1A2E]'
+    },
+    light: {
+        background: 'bg-gradient-to-br from-white via-slate-50 to-white',
+        card: 'bg-white/70 border-slate-200/70',
+        input: 'bg-white border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500',
+        text: {
+            primary: 'text-gray-900',
+            secondary: 'text-gray-600',
+            muted: 'text-gray-500'
+        },
+        decorativeOrbs: {
+            first: 'bg-purple-200/30',
+            second: 'bg-pink-200/30',
+            third: 'bg-blue-200/30'
+        },
+        divider: 'border-slate-300',
+        dividerBg: 'bg-white'
+    }
+};
+
 // Custom Button Component
 const Button = ({ children, variant = 'primary', className = '', disabled = false, onClick, type = 'button', theme = 'light', ...props }) => {
     const baseClasses = 'px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
@@ -51,10 +90,20 @@ const Select = ({ children, value, onChange, placeholder, className = '', theme 
     const [selectedValue, setSelectedValue] = useState(value || '');
     const [selectedLabel, setSelectedLabel] = useState(placeholder || 'Select...');
     const currentTheme = themeStyles[theme];
-
     useEffect(() => {
         setSelectedValue(value || '');
-    }, [value]);
+        // Update label when value changes
+        if (value) {
+            const child = React.Children.toArray(children).find(child => 
+                React.isValidElement(child) && child.props.value === value
+            );
+            if (child) {
+                setSelectedLabel(child.props.children);
+            }
+        } else {
+            setSelectedLabel(placeholder || 'Select...');
+        }
+    }, [value, children, placeholder]);
 
     const handleSelect = (optionValue, optionLabel) => {
         setSelectedValue(optionValue);
@@ -242,59 +291,29 @@ const SimpleCalendar = ({ selectedDate, onDateSelect, onClose, theme = 'light' }
     );
 };
 
-// Theme styles configuration
-const themeStyles = {
-    dark: {
-        background: 'bg-[#0F0F1C]',
-        card: 'bg-[#1C1C2E]/90 border-[#2D2D40]/60',
-        input: 'bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:ring-purple-500',
-        text: {
-            primary: 'text-white',
-            secondary: 'text-gray-400',
-            muted: 'text-gray-500'
-        },
-        decorativeOrbs: {
-            first: 'bg-purple-600/30',
-            second: 'bg-pink-500/30',
-            third: 'bg-indigo-500/30'
-        },
-        divider: 'border-[#2E2E3A]',
-        dividerBg: 'bg-[#1A1A2E]'
-    },
-    light: {
-        background: 'bg-gradient-to-br from-white via-slate-50 to-white',
-        card: 'bg-white/70 border-slate-200/70',
-        input: 'bg-white border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500',
-        text: {
-            primary: 'text-gray-900',
-            secondary: 'text-gray-600',
-            muted: 'text-gray-500'
-        },
-        decorativeOrbs: {
-            first: 'bg-purple-200/30',
-            second: 'bg-pink-200/30',
-            third: 'bg-blue-200/30'
-        },
-        divider: 'border-slate-300',
-        dividerBg: 'bg-white'
-    }
-};
-
 // Main Transaction Form Component
 export default function AddTransactionForm({
-    accounts = [],
-    categories = [],
+    accounts = [
+        { _id: '1', name: 'Checking Account', balance: 1000, isDefault: true },
+        { _id: '2', name: 'Savings Account', balance: 5000, isDefault: false }
+    ],
+    categories = [
+        { id: 'food', name: 'Food & Dining', type: 'EXPENSE' },
+        { id: 'transport', name: 'Transportation', type: 'EXPENSE' },
+        { id: 'salary', name: 'Salary', type: 'INCOME' },
+        { id: 'freelance', name: 'Freelance', type: 'INCOME' }
+    ],
     editMode = false,
     initialData = null,
-    onSubmit: onFormSubmit,
-    onCancel,
+    onSubmit: onFormSubmit = () => {},
+    onCancel = () => {},
     theme = 'light'
 }) {
     const [formData, setFormData] = useState({
         type: 'EXPENSE',
         amount: '',
         description: '',
-        accountId: accounts.find(ac => ac.isDefault)?.id || '',
+        accountId: accounts.find(ac => ac.isDefault)?._id || accounts[0]?._id || '',
         category: '',
         date: new Date(),
         isRecurring: false,
@@ -305,7 +324,7 @@ export default function AddTransactionForm({
     const [loading, setLoading] = useState(false);
     const [showCalendar, setShowCalendar] = useState(false);
     const [apiError, setApiError] = useState('');
-
+    const navigate = useNavigate();
     const currentTheme = themeStyles[theme];
 
     // Initialize form with edit data
@@ -324,7 +343,6 @@ export default function AddTransactionForm({
         }
     }, [editMode, initialData]);
 
-    
     const validateForm = () => {
         const newErrors = {};
 
@@ -353,7 +371,8 @@ export default function AddTransactionForm({
             const submitData = {
                 ...formData,
                 amount: parseFloat(formData.amount),
-                date: formData.date.toISOString()
+                date: formData.date.toISOString(),
+                recurringInterval: formData.isRecurring ? formData.recurringInterval : null
             };
 
             if (editMode && initialData?.id) {
@@ -363,9 +382,11 @@ export default function AddTransactionForm({
                 toast.success("Transaction updated");
             } else {
                 // Create new transaction
+                // console.log("Submitting transaction payload:", submitData);
                 const response = await axios.post('/api/v1/transaction', submitData);
                 console.log('Transaction created:', response.data);
                 toast.success("Transaction created");
+                navigate("/dashboard")
             }
 
             // Call parent onSubmit callback if provided
@@ -379,7 +400,7 @@ export default function AddTransactionForm({
                     type: 'EXPENSE',
                     amount: '',
                     description: '',
-                    accountId: accounts.find(ac => ac.isDefault)?.id || '',
+                    accountId: accounts.find(ac => ac.isDefault)?._id || accounts[0]?._id || '',
                     category: '',
                     date: new Date(),
                     isRecurring: false,
@@ -471,7 +492,11 @@ export default function AddTransactionForm({
                             <label className={`text-sm font-medium ${currentTheme.text.primary}`}>Type</label>
                             <Select
                                 value={formData.type}
-                                onChange={(value) => handleInputChange('type', value)}
+                                onChange={(value) => {
+                                    handleInputChange('type', value);
+                                    // Reset category when type changes
+                                    handleInputChange('category', '');
+                                }}
                                 placeholder="Select type"
                                 theme={theme}
                             >

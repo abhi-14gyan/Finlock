@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { format, parseISO } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
-import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, ChevronLeft, ChevronRight, ChevronUp, Trash, X } from 'lucide-react';
+import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal,Edit2,  ChevronLeft, ChevronRight, ChevronUp, Trash, X } from 'lucide-react';
 import { Plus, LogOut, Menu, ArrowUp, ArrowDown, LayoutGrid, User } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
@@ -362,6 +362,11 @@ const AccountPage = () => {
             <button onClick={() => navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
               <LayoutGrid className="w-4 h-4" />
               <span>Dashboard</span>
+            </button>
+            
+            <button onClick={()=>navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+              <Edit2 className="w-4 h-4" />
+              <span>Add Transaction</span>
             </button>
 
             <button
