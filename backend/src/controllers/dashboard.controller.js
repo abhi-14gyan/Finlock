@@ -43,7 +43,7 @@ exports.getUserAccounts = asyncHandler(async (req, res) => {
 
   const serializedAccounts = accounts.map(serializeAccount);
   
-  console.log('Fetched accounts:', serializedAccounts); // Debug log
+  // console.log('Fetched accounts:', serializedAccounts); // Debug log
   
   res.status(200).json({
     success: true,
