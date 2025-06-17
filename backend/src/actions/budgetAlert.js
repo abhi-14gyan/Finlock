@@ -10,6 +10,32 @@ function isNewMonth(lastDate, currentDate) {
   );
 }
 
+function parseDecimal128(decimal128Value) {
+  try {
+    if (!decimal128Value) return 0;
+
+    // Handle Decimal128 objects
+    if (decimal128Value.$numberDecimal) {
+      return parseFloat(decimal128Value.$numberDecimal);
+    }
+
+    // Handle if it's already a string or number
+    if (typeof decimal128Value === 'string' || typeof decimal128Value === 'number') {
+      return parseFloat(decimal128Value);
+    }
+
+    // Try toString() method for Mongoose Decimal128
+    if (decimal128Value.toString) {
+      return parseFloat(decimal128Value.toString());
+    }
+
+    return 0;
+  } catch (err) {
+    console.log("❌ Error parsing decimal value:", err.message);
+    return 0;
+  }
+}
+
 const checkBudgetAlert = inngest.createFunction(
   { name: "Check Budget Alerts" },
   { cron: "0 */6 * * *" }, // Every 6 hours
@@ -64,10 +90,9 @@ const checkBudgetAlert = inngest.createFunction(
         console.log("📊 Total Expenses:", totalExpenses);
 
         // Safely handle Decimal128 budget amount
-        let budgetAmount = 0;
-        if (budget.amount && typeof budget.amount.toString === "function") {
-          budgetAmount = parseFloat(budget.amount.toString());
-        }
+        const budgetAmount = parseDecimal128(budget.amount);
+        console.log("🧪 Original Budget Amount:", budget.amount);
+        console.log("🧪 Parsed Budget Amount:", budgetAmount);
 
         if (isNaN(budgetAmount) || budgetAmount === 0) {
           console.log("❌ Skipping due to invalid budget amount:", budget.amount);
@@ -82,9 +107,11 @@ const checkBudgetAlert = inngest.createFunction(
           (!budget.lastAlertSent ||
             isNewMonth(new Date(budget.lastAlertSent), new Date()))
         ) {
-          console.log("⚠️ Budget threshold exceeded. Sending alert.");
+          console.log("⚠ Budget threshold exceeded. Sending alert.");
           console.log("User ID:", user._id.toString());
           console.log("Budget ID:", budget._id.toString());
+          console.log("User Email:", user.email);
+          console.log("Percentage Used:", percentageUsed.toFixed(2) + "%");
 
           // Send email logic (uncomment if implemented)
           /*
@@ -109,9 +136,21 @@ const checkBudgetAlert = inngest.createFunction(
           );
 
           console.log(`✅ Updated lastAlertSent for budget: ${budget._id}`);
+          console.log(`📧 Alert would be sent to: ${user.email}`);
+        } else {
+          console.log("✅ No alert needed.");
+          if (percentageUsed < 80) {
+            console.log(`   - Usage (${percentageUsed.toFixed(2)}%) is below 80% threshold`);
+          }
+          if (budget.lastAlertSent && !isNewMonth(new Date(budget.lastAlertSent), new Date())) {
+            console.log(`   - Alert already sent this month (${new Date(budget.lastAlertSent).toDateString()})`);
+          }
         }
       });
     }
+
+    console.log("🏁 Budget alert check completed");
+
   }
 );
 
