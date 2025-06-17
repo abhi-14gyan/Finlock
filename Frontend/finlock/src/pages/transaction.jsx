@@ -186,7 +186,7 @@ const AddTransactionPage = () => {
                 </div>
 
                 <div className="flex justify-center md:justify-normal mb-8">
-                    <h1 className={`text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#EAB308' }} >Add Transaction</h1>
+                    <h1 className={`text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#EAB308' }} >{editId? "Update Transaction" : "Add Transaction"}</h1>
                 </div>
                 <div className="max-w-3xl mx-auto px-5">
                     <AddTransactionForm

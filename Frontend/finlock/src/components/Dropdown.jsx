@@ -8,9 +8,8 @@ const TransactionDropdown = ({ transaction, deleteFn }) => {
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
-
   const handleEdit = () => {
-    navigate(`/transaction/create?edit=${transaction.id}`);
+    navigate(`/transaction/?edit=${transaction._id}`);
     setIsOpen(false);
   };
 

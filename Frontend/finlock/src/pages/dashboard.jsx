@@ -293,7 +293,7 @@ useEffect(() => {
               {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
             </button>
 
-            <button onClick={() => navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
+            <button onClick={() => navigate("/transaction", { state: { from: '/dashboard' } })} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
               <Edit2 className="w-4 h-4" />
               <span>Add Transaction</span>
             </button>
@@ -332,7 +332,7 @@ useEffect(() => {
                 <span className={`${theme.text.primary}`}>Toggle Theme</span>
               </button>
 
-              <button onClick={() => navigate("/transaction")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
+              <button onClick={() => navigate("/transaction", { state: { from: '/dashboard' } })} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
                 <Plus className="w-4 h-4" />
                 <span>Add Transaction</span>
               </button>
