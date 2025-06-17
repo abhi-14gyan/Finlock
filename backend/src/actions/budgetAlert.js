@@ -11,7 +11,6 @@ function isNewMonth(lastDate, currentDate) {
   );
 }
 
-// Helper function to properly parse Decimal128 values
 function parseDecimal128(decimal128Value) {
   try {
     if (!decimal128Value) return 0;
@@ -47,9 +46,6 @@ const checkBudgetAlert = inngest.createFunction(
     const budgets = await step.run("fetch-budgets", async () => {
       return await Budget.find({}).populate({
         path: "userId",
-        // populate: {
-        //   path: "accounts",
-        // },
       });
     });
 
@@ -86,10 +82,10 @@ const checkBudgetAlert = inngest.createFunction(
           ? parseFloat(expenses[0].total.toString()) // Decimal128 fix
           : 0
         console.log("📊 Total Expenses:", totalExpenses);
-
-        // Parse budget amount using the helper function
+        // Safely handle Decimal128 budget amount
         const budgetAmount = parseDecimal128(budget.amount);
-
+        console.log("🧪 Original Budget Amount:", budget.amount);
+        console.log("🧪 Parsed Budget Amount:", budgetAmount);
         console.log("🧪 Original Budget Amount:", budget.amount);
         console.log("🧪 Parsed Budget Amount:", budgetAmount);
 
@@ -100,7 +96,6 @@ const checkBudgetAlert = inngest.createFunction(
 
         const percentageUsed = (totalExpenses / budgetAmount) * 100;
         console.log("📈 Budget usage:", percentageUsed.toFixed(2) + "%");
-
         // Check if alert should be sent
         const shouldSendAlert = percentageUsed >= 80 && (
           !budget.lastAlertSent ||
