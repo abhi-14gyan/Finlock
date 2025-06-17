@@ -30,12 +30,11 @@ const userSchema = new mongoose.Schema({
     type: String
   },
 
-  accounts: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Account"
-    }
-  ]
+  accounts: {
+  type: [mongoose.Schema.Types.ObjectId],
+  ref: "Account",
+  default: []   
+}
 
 }, { timestamps: true });
 

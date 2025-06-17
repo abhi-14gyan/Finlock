@@ -21,13 +21,21 @@ const checkBudgetAlert = inngest.createFunction(
   async ({ step }) => {
     console.log("🚀 Cron job triggered");
     const budgets = await step.run("fetch-budgets", async () => {
-      return await Budget.find({}).populate({
+      const rawBudgets = await Budget.find({});
+      console.log("Raw Budgets:", rawBudgets.length);
+
+      const populatedBudgets = await Budget.find({}).populate({
         path: "userId",
         populate: {
           path: "accounts",
-          match: { isDefault: true },
-        },
+          match: { isDefault: true }
+        }
       });
+
+      console.log("Populated Budgets:", populatedBudgets.length);
+      console.log("Sample:", JSON.stringify(populatedBudgets[0], null, 2));
+
+      return populatedBudgets;
     });
 
     console.log("✅ Budgets fetched:", budgets.length);
@@ -35,6 +43,7 @@ const checkBudgetAlert = inngest.createFunction(
 
     for (const budget of budgets) {
       const defaultAccount = budget.userId.accounts?.[0];
+      console.log("inside For Loop, DefaultAccount is:", defaultAccount);
       if (!defaultAccount) continue;
 
       await step.run(`check-budget-${budget._id}`, async () => {
