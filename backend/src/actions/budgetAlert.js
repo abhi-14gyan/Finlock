@@ -4,7 +4,7 @@ const Budget = require("../models/budget.model");
 const Transaction = require("../models/transaction.model");
 const User = require("../models/user.model");
 const {sendEmail} = require("../actions/sendEmail");
-
+const EmailTemplate = require("../emails/template");
 
 function isNewMonth(lastDate, currentDate) {
   return (

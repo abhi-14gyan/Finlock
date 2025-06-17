@@ -10,7 +10,7 @@ const sendEmail = async function ({ to, subject, html }) {
             from: 'Finlock <onboarding@resend.dev>',
             to,
             subject,
-            react,
+            html,
 
         });
 
