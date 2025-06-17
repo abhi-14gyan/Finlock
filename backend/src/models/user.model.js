@@ -29,13 +29,6 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
     type: String
   },
-
-  accounts: {
-  type: [mongoose.Schema.Types.ObjectId],
-  ref: "Account",
-  default: []   
-}
-
 }, { timestamps: true });
 
 // Hash password before saving

@@ -3,7 +3,7 @@ const Account = require("../models/account.model");
 const Transaction = require("../models/transaction.model");
 
 async function seedTransactions() {
-  await mongoose.connect("mongodb+srv://Finlock:Abhi1834@finlock.5hmnklf.mongodb.net/Finlock", {
+  await mongoose.connect("", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
@@ -40,7 +40,7 @@ async function seedTransactions() {
     return { category: category.name, amount };
   }
 
-  const ACCOUNT_ID = "6851862197baf127b5b7ee4f";
+  const ACCOUNT_ID = "68518ca8af3fba57b4ce4219";
   const USER_ID = "685182721080f2b851358d68";
 
   const transactions = [];

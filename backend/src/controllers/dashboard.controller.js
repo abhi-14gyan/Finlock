@@ -75,10 +75,6 @@ exports.createAccount = asyncHandler(async (req, res) => {
     isDefault: shouldBeDefault,
     userId,
   });
-  // after creating an account
-  await User.findByIdAndUpdate(userId, {
-    $push: { accounts: account._id }
-  });
 
   res.status(201).json({
     success: true,
