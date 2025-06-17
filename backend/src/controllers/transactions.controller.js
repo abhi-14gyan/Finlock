@@ -5,7 +5,11 @@ const asyncHandler = require("../utils/asyncHandler");
 const { ApiError } = require("../utils/apiError");
 const mongoose = require("mongoose");
 const { Decimal128 } = mongoose.Types;
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const fs = require("fs");
+const path = require("path");
 
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Helper: parse Decimal128 and format amount
 const serializeAmount = (txn) => {
   const obj = txn._doc || txn;
@@ -19,8 +23,6 @@ const serializeAmount = (txn) => {
 exports.createTransaction = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const data = req.body;
-  console.log("Request body:", data);
-
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
 
@@ -96,7 +98,7 @@ exports.updateTransaction = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const newData = req.body;
 
-  const oldTxn = await Transaction.findOne({ _id: id, userId }).populate("account");
+  const oldTxn = await Transaction.findOne({ _id: id, userId }).populate("accountId");
   if (!oldTxn) throw new ApiError(404, "Transaction not found");
 
   const oldChange = oldTxn.type === "EXPENSE" ? -oldTxn.amount : oldTxn.amount;
@@ -162,4 +164,78 @@ const calculateNextRecurringDate = (startDate, interval) => {
   }
 
   return date;
+};
+
+
+// Scan Receipt
+exports.scanReceipt = async (req, res) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    // Read file from disk and convert to base64
+    const filePath = path.join(__dirname, "../../public/temp", file.originalname);
+    const fileBuffer = fs.readFileSync(filePath);
+    const base64String = fileBuffer.toString("base64");
+
+    const prompt = `
+      Analyze this receipt image and extract the following information in JSON format:
+      - Total amount (just the number)
+      - Date (in ISO format)
+      - Description or items purchased (brief summary)
+      - Merchant/store name
+      - Suggested category (one of: housing,transportation,groceries,utilities,entertainment,food,shopping,healthcare,education,personal,travel,insurance,gifts,bills,other-expense )
+
+      Only respond with valid JSON in this exact format:
+      {
+        "amount": number,
+        "date": "ISO date string",
+        "description": "string",
+        "merchantName": "string",
+        "category": "string"
+      }
+
+      If it's not a receipt, return an empty object
+    `;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          data: base64String,
+          mimeType: file.mimetype,
+        },
+      },
+      prompt,
+    ]);
+
+    const response = await result.response;
+    const text = response.text();
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+
+    try {
+      const data = JSON.parse(cleanedText);
+
+      // Optionally: delete file after reading
+      fs.unlinkSync(filePath);
+
+      return res.status(200).json({
+        amount: parseFloat(data.amount),
+        date: new Date(data.date),
+        description: data.description,
+        category: data.category,
+        merchantName: data.merchantName,
+      });
+    } catch (parseError) {
+      console.error("Error parsing JSON response:", parseError);
+      return res.status(500).json({ error: "Invalid response format from Gemini" });
+    }
+  } catch (error) {
+    console.error("Error scanning receipt:", error);
+    return res.status(500).json({ error: "Failed to scan receipt" });
+  }
 };

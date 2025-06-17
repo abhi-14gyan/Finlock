@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, Loader2, X } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useLocation,useNavigate } from 'react-router-dom';
+import { ReceiptScanner } from './receiptScanner';
 // Theme styles configuration
 const themeStyles = {
     dark: {
@@ -306,7 +307,6 @@ export default function AddTransactionForm({
     editMode = false,
     initialData = null,
     onSubmit: onFormSubmit = () => {},
-    onCancel = () => {},
     theme = 'light'
 }) {
     const [formData, setFormData] = useState({
@@ -325,8 +325,9 @@ export default function AddTransactionForm({
     const [showCalendar, setShowCalendar] = useState(false);
     const [apiError, setApiError] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
     const currentTheme = themeStyles[theme];
-
+     const origin = location.state?.from || '/dashboard';
     // Initialize form with edit data
     useEffect(() => {
         if (editMode && initialData) {
@@ -341,6 +342,7 @@ export default function AddTransactionForm({
                 recurringInterval: initialData.recurringInterval || ''
             });
         }
+        // console.log("initialData: ",initialData);
     }, [editMode, initialData]);
 
     const validateForm = () => {
@@ -375,18 +377,18 @@ export default function AddTransactionForm({
                 recurringInterval: formData.isRecurring ? formData.recurringInterval : null
             };
 
-            if (editMode && initialData?.id) {
+            if (editMode && initialData?._id) {
                 // Update existing transaction
-                const response = await axios.put(`/api/v1/transaction/${initialData.id}`, submitData);
-                console.log('Transaction updated:', response.data);
+                const response = await axios.put(`/api/v1/transaction/${initialData._id}`, submitData);
+                //console.log('Transaction updated:', response.data);
                 toast.success("Transaction updated");
             } else {
                 // Create new transaction
                 // console.log("Submitting transaction payload:", submitData);
                 const response = await axios.post('/api/v1/transaction', submitData);
-                console.log('Transaction created:', response.data);
+                //console.log('Transaction created:', response.data);
                 toast.success("Transaction created");
-                navigate("/dashboard")
+                navigate(origin);
             }
 
             // Call parent onSubmit callback if provided
@@ -452,6 +454,20 @@ export default function AddTransactionForm({
         category => category.type === formData.type
     );
     
+    const handleScanComplete = (scannedData) => {
+    if (!scannedData) return;
+
+    setFormData(prev => ({
+        ...prev,
+        amount: scannedData.amount ? scannedData.amount.toString() : prev.amount,
+        date: scannedData.date ? new Date(scannedData.date) : prev.date,
+        description: scannedData.description || prev.description,
+        category: scannedData.category || prev.category
+    }));
+
+    toast.success("Receipt scanned successfully");
+};
+
     return (
         <div className={`min-h-screen ${currentTheme.background}`}>
             {/* Decorative background orbs */}
@@ -486,6 +502,8 @@ export default function AddTransactionForm({
                                 </div>
                             </div>
                         )}
+                        
+                        {!editMode && <ReceiptScanner onScanComplete={handleScanComplete} />}
 
                         {/* Type */}
                         <div className="space-y-2">
@@ -650,7 +668,7 @@ export default function AddTransactionForm({
                                 type="button"
                                 variant="outline"
                                 className="w-full"
-                                onClick={onCancel}
+                                onClick={()=> navigate(origin)}
                                 theme={theme}
                             >
                                 Cancel
