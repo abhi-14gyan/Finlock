@@ -9,11 +9,11 @@ const serializeAccount = (obj) => {
   // Handle both lean objects and Mongoose documents
   const data = obj._doc ? obj._doc : obj;
   const serialized = { ...data };
-  
+
   if (serialized.balance) {
     serialized.balance = parseFloat(serialized.balance.toString());
   }
-  
+
   return serialized;
 };
 
@@ -22,14 +22,14 @@ const serializeTransaction = (obj) => {
   // Handle both lean objects and Mongoose documents
   const data = obj._doc ? obj._doc : obj;
   const serialized = { ...data };
-  
+
   if (serialized.balance) {
     serialized.balance = parseFloat(serialized.balance.toString());
   }
   if (serialized.amount) {
     serialized.amount = parseFloat(serialized.amount.toString());
   }
-  
+
   return serialized;
 };
 
@@ -42,9 +42,9 @@ exports.getUserAccounts = asyncHandler(async (req, res) => {
     .lean();
 
   const serializedAccounts = accounts.map(serializeAccount);
-  
+
   // console.log('Fetched accounts:', serializedAccounts); // Debug log
-  
+
   res.status(200).json({
     success: true,
     data: serializedAccounts
@@ -75,6 +75,10 @@ exports.createAccount = asyncHandler(async (req, res) => {
     isDefault: shouldBeDefault,
     userId,
   });
+  // after creating an account
+  await User.findByIdAndUpdate(userId, {
+    $push: { accounts: account._id }
+  });
 
   res.status(201).json({
     success: true,
@@ -89,7 +93,7 @@ exports.getDashboardData = asyncHandler(async (req, res) => {
   const transactions = await Transaction.find({ userId }).sort({ date: -1 });
 
   const serialized = transactions.map(serializeTransaction);
-  
+
   res.status(200).json({
     success: true,
     data: serialized
