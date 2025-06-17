@@ -1,22 +1,21 @@
 const { Resend } = require("resend");
-const { render } = require("@react-email/render");
 
-const sendEmail = async function ({ to, subject, html, react }) {
+const sendEmail = async function ({ to, subject, html }) {
   const resend = new Resend(process.env.RESEND_API_KEY || "");
 
   try {
-    const emailHtml = html || (react ? render(react) : "");
-
+    console.log("Sending email to:", to);
     const data = await resend.emails.send({
       from: 'Finlock <onboarding@resend.dev>',
       to,
       subject,
-      html: emailHtml,
+      html,
     });
 
+    console.log("Email sent:", data);
     return { success: true, data };
   } catch (error) {
-    console.error("Failed to send Email to", to, error);
+    console.error("Failed to send email:", error);
     return { success: false, error };
   }
 };
