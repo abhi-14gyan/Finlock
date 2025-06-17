@@ -79,15 +79,15 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-  fetchAccounts();
-}, []);
+    fetchAccounts();
+  }, []);
 
-useEffect(() => {
-  if (accounts.length > 0 && !selectedAccount) {
-    const defaultAccount = accounts.find((a) => a.isDefault)?._id || accounts[0]._id;
-    setSelectedAccount(defaultAccount);
-  }
-}, [accounts]);
+  useEffect(() => {
+    if (accounts.length > 0 && !selectedAccount) {
+      const defaultAccount = accounts.find((a) => a.isDefault)?._id || accounts[0]._id;
+      setSelectedAccount(defaultAccount);
+    }
+  }, [accounts]);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -210,6 +210,17 @@ useEffect(() => {
   const theme = isDark ? themeStyles.dark : themeStyles.light;
   // setTheme(theme);
 
+  //Colors for Piechart
+  const COLORS = [
+    "#ef4444",
+    "#84cc16",
+    "#f97316",
+    "#06b6d4",
+    "#8b5cf6",
+    "#ec4899",
+    "#22c55e",
+  ];
+
   const expenseData = [
     { name: 'rental', value: 1500.00, color: '#EF4444' },
     { name: 'entertainment', value: 304.33, color: '#10B981' },
@@ -263,6 +274,35 @@ useEffect(() => {
   const recentTransactions = accountTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
 
   //console.log(recentTransactions)
+
+  // Calculate expense breakdown for current month
+  const currentDate = new Date();
+  const currentMonthExpenses = accountTransactions.filter((t) => {
+    const transactionDate = new Date(t.date);
+    return (
+      t.type === "EXPENSE" &&
+      transactionDate.getMonth() === currentDate.getMonth() &&
+      transactionDate.getFullYear() === currentDate.getFullYear()
+    );
+  });
+
+  // Group expenses by category
+  const expensesByCategory = currentMonthExpenses.reduce((acc, transaction) => {
+    const category = transaction.category;
+    if (!acc[category]) {
+      acc[category] = 0;
+    }
+    acc[category] += transaction.amount;
+    return acc;
+  }, {});
+
+  // Format data for pie chart
+  const pieChartData = Object.entries(expensesByCategory).map(
+    ([category, amount]) => ({
+      name: category,
+      value: amount,
+    })
+  );
 
 
   return (
@@ -401,20 +441,22 @@ useEffect(() => {
             <div className="flex flex-col sm:flex-row items-center justify-center">
 
               {/* Chart container with responsive width/height */}
-              <div className="w-40 h-40 sm:w-48 sm:h-48 mb-4 sm:mb-0">
+              <div className="w-56 h-56 sm:w-64 sm:h-64 mb-4 sm:mb-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={expenseData}
+                      data={pieChartData}
                       cx="50%"
                       cy="50%"
                       innerRadius={50}
                       outerRadius={70}
                       paddingAngle={2}
                       dataKey="value"
+                      labelLine={false}
+                      label={({ name }) => name}
                     >
-                      {expenseData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {pieChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                   </PieChart>
@@ -423,14 +465,14 @@ useEffect(() => {
 
               {/* Legend */}
               <div className="sm:ml-6 space-y-2 text-center sm:text-left">
-                {expenseData.map((item, index) => (
+                {pieChartData.map((item, index) => (
                   <div key={index} className="flex items-center justify-center sm:justify-start space-x-2">
                     <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: item.color }}
                     ></div>
                     <span className={`${theme.text.secondary} text-sm`}>
-                      {item.name}: ${item.value.toFixed(2)}
+                      {item.name}: ₹{item.value.toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -507,7 +549,7 @@ useEffect(() => {
 
                 <div className="mb-4">
                   <span className={`text-2xl font-bold ${theme.text.primary}`}>
-                    ${parseFloat(account.balance).toFixed(2)}
+                    ₹{parseFloat(account.balance).toFixed(2)}
                   </span>
                   <p className={`${theme.text.muted} text-sm`}>
                     {capitalizeFirst(account.type)}
