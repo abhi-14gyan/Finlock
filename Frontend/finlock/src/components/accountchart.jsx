@@ -34,7 +34,7 @@ export function AccountBarChart({ transactions }) {
     );
 
     const grouped = filtered.reduce((acc, transaction) => {
-      const date = format(new Date(new Date(transaction.date).toISOString().substring(0, 10)), "MMM dd");
+      const date = format(parseISO(transaction.date), "MMM dd");
 
       if (!acc[date]) {
         acc[date] = { date, income: 0, expense: 0 };

@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const Budget = require("../models/budget.model");
 const Transaction = require("../models/transaction.model");
 const User = require("../models/user.model");
+const {sendEmail} = require("../actions/sendEmail");
+
 
 function isNewMonth(lastDate, currentDate) {
   return (
@@ -110,7 +112,7 @@ const checkBudgetAlert = inngest.createFunction(
           console.log("Percentage Used:", percentageUsed.toFixed(2) + "%");
 
           // Send email logic (uncomment if implemented)
-          /*
+          
           await sendEmail({
             to: user.email,
             subject: `⚠️ Budget Alert - ${percentageUsed.toFixed(1)}% Used`,
@@ -125,7 +127,6 @@ const checkBudgetAlert = inngest.createFunction(
               },
             }),
           });
-          */
 
           // Update lastAlertSent
           await Budget.updateOne(
