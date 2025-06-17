@@ -39,6 +39,41 @@ function parseDecimal128(decimal128Value) {
   }
 }
 
+
+
+// Get monthly stats (total income, expenses, category breakdown) for a user
+async function getMonthlyStats(userId, monthDate) {
+  const Transaction = require("../models/transaction.model");
+  const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+  const endDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+
+  const transactions = await Transaction.find({
+    userId,
+    date: { $gte: startDate, $lte: endDate },
+  });
+
+  return transactions.reduce(
+    (stats, t) => {
+      const amount = parseFloat(t.amount.toString());
+      if (t.type === "EXPENSE") {
+        stats.totalExpenses += amount;
+        stats.byCategory[t.category] =
+          (stats.byCategory[t.category] || 0) + amount;
+      } else if (t.type === "INCOME") {
+        stats.totalIncome += amount;
+      }
+      return stats;
+    },
+    {
+      totalExpenses: 0,
+      totalIncome: 0,
+      byCategory: {},
+      transactionCount: transactions.length,
+    }
+  );
+}
+
+
 const checkBudgetAlert = inngest.createFunction(
   { name: "Check Budget Alerts" },
   { cron: "0 */6 * * *" }, // Every 6 hours
