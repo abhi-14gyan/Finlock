@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "https://res.cloudinary.com/demo/image/upload/v1717398651/default-avatar.png"
   },
-  password: { 
+  password: {
     type: String,
     required: function () {
       return !this.googleId; // password required only if not using Google
@@ -28,7 +28,15 @@ const userSchema = new mongoose.Schema({
   },
   refreshToken: {
     type: String
-  }
+  },
+
+  accounts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Account"
+    }
+  ]
+
 }, { timestamps: true });
 
 // Hash password before saving
