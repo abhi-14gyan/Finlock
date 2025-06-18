@@ -259,7 +259,7 @@ const generateMonthlyReports = inngest.createFunction(
         await sendEmail({
           to: user.email,
           subject: `📊 Your Monthly Financial Report - ${monthName}`,
-          html: monthlyReportHtml({
+          html: budgetAlertHtml({
             userName: user.name,
             type: "monthly-report",
             data: {
