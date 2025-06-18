@@ -72,12 +72,10 @@ async function getMonthlyStats(userId, monthDate) {
   );
 }
 
-exports.generateFinancialInsights = async (req, res) => {
+const generateFinancialInsights = async (stats, month) => {
   try {
-    const { stats, month } = req.body;
-
     if (!stats || !month) {
-      return res.status(400).json({ error: "Missing stats or month in request body" });
+      throw new Error("Missing stats or month in request body");
     }
 
     const prompt = `
@@ -105,20 +103,19 @@ exports.generateFinancialInsights = async (req, res) => {
 
     const insights = JSON.parse(cleanedText);
 
-    return res.status(200).json({ insights });
+    return insights; // ✅ Return pure data
   } catch (error) {
     console.error("Error generating financial insights:", error);
 
-    return res.status(500).json({
-      insights: [
-        "Your highest expense category this month might need attention.",
-        "Consider setting up a budget for better financial management.",
-        "Track your recurring expenses to identify potential savings.",
-      ],
-      fallback: true,
-    });
+    // Fallback insights
+    return [
+      "Your highest expense category this month might need attention.",
+      "Consider setting up a budget for better financial management.",
+      "Track your recurring expenses to identify potential savings.",
+    ];
   }
 };
+
 
 
 const checkBudgetAlert = inngest.createFunction(
