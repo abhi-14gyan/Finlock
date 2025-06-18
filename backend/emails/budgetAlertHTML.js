@@ -1,6 +1,12 @@
 // emails/budgetAlertHtml.js
 
-function budgetAlertHtml({ userName = "", data = {} }) {
+function budgetAlertHtml({ userName = "", data = {}, type= "budget-alert" }) {
+
+  if(type == "monthly-report"){
+    
+  }
+
+  if(type === "budget-alert"){
   return `
     <html>
       <body style="font-family: Arial, sans-serif; background: #f1f5f9; padding: 40px 0;">
@@ -19,7 +25,7 @@ function budgetAlertHtml({ userName = "", data = {} }) {
         </div>
       </body>
     </html>
-  `;
+  `;}
 }
 
 module.exports = { budgetAlertHtml };

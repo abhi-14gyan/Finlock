@@ -43,7 +43,6 @@ function parseDecimal128(decimal128Value) {
 
 // Get monthly stats (total income, expenses, category breakdown) for a user
 async function getMonthlyStats(userId, monthDate) {
-  const Transaction = require("../models/transaction.model");
   const startDate = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
   const endDate = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
 
@@ -72,6 +71,54 @@ async function getMonthlyStats(userId, monthDate) {
     }
   );
 }
+
+exports.generateFinancialInsights = async (req, res) => {
+  try {
+    const { stats, month } = req.body;
+
+    if (!stats || !month) {
+      return res.status(400).json({ error: "Missing stats or month in request body" });
+    }
+
+    const prompt = `
+      Analyze this financial data and provide 3 concise, actionable insights.
+      Focus on spending patterns and practical advice.
+      Keep it friendly and conversational.
+
+      Financial Data for ${month}:
+      - Total Income: $${stats.totalIncome}
+      - Total Expenses: $${stats.totalExpenses}
+      - Net Income: $${stats.totalIncome - stats.totalExpenses}
+      - Expense Categories: ${Object.entries(stats.byCategory)
+        .map(([category, amount]) => `${category}: $${amount}`)
+        .join(", ")}
+
+      Format the response as a JSON array of strings, like this:
+      ["insight 1", "insight 2", "insight 3"]
+    `;
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+
+    const insights = JSON.parse(cleanedText);
+
+    return res.status(200).json({ insights });
+  } catch (error) {
+    console.error("Error generating financial insights:", error);
+
+    return res.status(500).json({
+      insights: [
+        "Your highest expense category this month might need attention.",
+        "Consider setting up a budget for better financial management.",
+        "Track your recurring expenses to identify potential savings.",
+      ],
+      fallback: true,
+    });
+  }
+};
 
 
 const checkBudgetAlert = inngest.createFunction(
