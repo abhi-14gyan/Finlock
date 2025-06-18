@@ -200,6 +200,7 @@ const checkBudgetAlert = inngest.createFunction(
             subject: `⚠️ Budget Alert - ${percentageUsed.toFixed(1)}% Used`,
             html: budgetAlertHtml({
               userName: user.name,
+              type: "budget-alert",
               data: {
                 percentageUsed: percentageUsed.toFixed(1),
                 budgetAmount: budgetAmount.toFixed(2),
@@ -232,4 +233,52 @@ const checkBudgetAlert = inngest.createFunction(
   }
 );
 
-module.exports = { checkBudgetAlert };
+const generateMonthlyReports = inngest.createFunction(
+  {
+    name: "Generate Monthly Reports",
+  },
+  { cron: "0 0 1 * *" }, // First day of each month at 00:00
+  async ({ step }) => {
+    console.log("🚀 Monthly report cron triggered");
+
+    const users = await step.run("fetch-users", async () => {
+      return await User.find({});
+    });
+
+    console.log("✅ Users fetched:", users.length);
+
+    for (const user of users) {
+      await step.run(`generate-report-${user._id}`, async () => {
+        const lastMonth = new Date();
+        lastMonth.setMonth(lastMonth.getMonth() - 1);
+
+        const stats = await getMonthlyStats(user._id, lastMonth);
+        const monthName = lastMonth.toLocaleString("default", { month: "long" });
+
+        const insights = await generateFinancialInsights(stats, monthName);
+
+        await sendEmail({
+          to: user.email,
+          subject: `📊 Your Monthly Financial Report - ${monthName}`,
+          html: monthlyReportHtml({
+            userName: user.name,
+            type: "monthly-report",
+            data: {
+              stats,
+              month: monthName,
+              insights,
+            },
+          }),
+        });
+
+        console.log(`📩 Monthly report sent to ${user.email}`);
+      });
+    }
+
+    console.log("🏁 Monthly report generation completed");
+    return { processed: users.length };
+  }
+);
+
+
+module.exports = { checkBudgetAlert,generateMonthlyReports };
