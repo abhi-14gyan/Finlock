@@ -5,7 +5,8 @@ const Transaction = require("../models/transaction.model");
 const User = require("../models/user.model");
 const { sendEmail } = require("../actions/sendEmail");
 const { budgetAlertHtml } = require("../../emails/budgetAlertHTML");
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 function isNewMonth(lastDate, currentDate) {
   return (
     lastDate.getMonth() !== currentDate.getMonth() ||
