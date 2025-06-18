@@ -7,10 +7,10 @@ const { app } = require('./app.js');
 
 // Inngest setup
 const { inngest } = require('./inngest.js');
-const { checkBudgetAlert } = require('./actions/budgetAlert.js'); // You can add more functions here
+const { checkBudgetAlert, generateMonthlyReports } = require('./actions/budgetAlert.js'); // You can add more functions here
 
 // Register the Inngest route before the app starts
-app.use('/api/inngest', serve({ client: inngest, functions: [checkBudgetAlert] }));
+app.use('/api/inngest', serve({ client: inngest, functions: [checkBudgetAlert, generateMonthlyReports] }));
 
 // Start your server after DB connects
 connectDB()

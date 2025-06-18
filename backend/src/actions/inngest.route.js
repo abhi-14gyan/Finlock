@@ -1,7 +1,7 @@
 // src/actions/run.js
-const { checkBudgetAlerts, generateMonthlyReports } = require("./budgetAlert.function");
+const { checkBudgetAlert, generateMonthlyReports } = require("./budgetAlert");
 module.exports = {
-  functions: [checkBudgetAlerts,
+  functions: [checkBudgetAlert,
     generateMonthlyReports
   ],
 };

@@ -236,6 +236,7 @@ const checkBudgetAlert = inngest.createFunction(
 const generateMonthlyReports = inngest.createFunction(
   {
     name: "Generate Monthly Reports",
+    id: "generate-monthly-reports"
   },
   { cron: "0 0 1 * *" }, // First day of each month at 00:00
   async ({ step }) => {
