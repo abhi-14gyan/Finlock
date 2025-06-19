@@ -110,7 +110,7 @@ const Dashboard = () => {
   useEffect(() => {
     // console.log("Reached useEffect")
     if (user?._id) {
-      // console.log("User found");
+      console.log("User imageURL:", user.imageUrl);
       fetchAccounts();
     }
   }, [user]);
@@ -345,11 +345,20 @@ const Dashboard = () => {
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
             </button>
-
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+            {user?.imageUrl?
+              <img
+                src={user.imageUrl}
+                alt="User Avatar"
+                referrerPolicy="no-referrer"
+                className="w-10 h-10 rounded-full object-cover"
+              /> : <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
               <User className="w-5 h-5 text-white" />
             </div>
+            }
+
           </div>
+
+
 
           {/* Mobile Menu Toggle */}
           <div className="flex md:hidden items-center ml-auto mt-4">
