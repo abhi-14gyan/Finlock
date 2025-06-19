@@ -600,7 +600,7 @@ const AccountPage = () => {
                     {transaction.isRecurring ? "YES" : "NO"}
                   </div>
                   <div className="col-span-1 flex justify-end">
-                    <Dropdown transaction={transaction} deleteFn={deleteFn} />
+                    <Dropdown transaction={transaction} deleteFn={deleteFn} accountId = {accountId} />
                   </div>
                 </div>
               </div>

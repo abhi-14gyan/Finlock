@@ -382,6 +382,7 @@ export default function AddTransactionForm({
                 const response = await axios.put(`/api/v1/transaction/${initialData._id}`, submitData);
                 //console.log('Transaction updated:', response.data);
                 toast.success("Transaction updated");
+                navigate(origin);
             } else {
                 // Create new transaction
                 // console.log("Submitting transaction payload:", submitData);

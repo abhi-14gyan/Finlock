@@ -16,9 +16,9 @@ const aj = arcjet({
     }),
     tokenBucket({
       mode: "LIVE",
-      refillRate: 10, // 10 tokens per hour
+      refillRate: 50, // 10 tokens per hour
       interval: 3600, // 3600 seconds = 1 hour
-      capacity: 10,
+      capacity: 50,
     }),
   ],
 });
