@@ -2,14 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MoreHorizontal } from "lucide-react";
 
-const TransactionDropdown = ({ transaction, deleteFn }) => {
+const TransactionDropdown = ({ transaction, deleteFn, accountId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
   const handleEdit = () => {
-    navigate(`/transaction/?edit=${transaction._id}`);
+    navigate(`/transaction/?edit=${transaction._id}`, { state: { from: `/account/${accountId}` } });
     setIsOpen(false);
   };
 
