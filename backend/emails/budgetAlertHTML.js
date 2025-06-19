@@ -40,7 +40,7 @@ function budgetAlertHtml({ userName = "", data = {}, type = "budget-alert" }) {
         ${data?.insights
         ? `
             <div style="margin-top: 24px;">
-              <h3 style="color: #1e293b; font-size: 18px;">💡 Welth Insights</h3>
+              <h3 style="color: #1e293b; font-size: 18px;">💡 Finlock Insights</h3>
               <ul style="list-style-type: disc; color: #334155; padding-left: 20px; margin-top: 10px;">
                 ${data.insights
           .map((insight) => `<li style="margin-bottom: 6px;">${insight}</li>`)
@@ -51,9 +51,9 @@ function budgetAlertHtml({ userName = "", data = {}, type = "budget-alert" }) {
         : ""
       }
 
-        <p style="margin-top: 24px;">Thank you for using <strong>Welth</strong>. Keep tracking your finances for better financial health!</p>
+        <p style="margin-top: 24px;">Thank you for using <strong>Finlock</strong>. Keep tracking your finances for better financial health!</p>
         <a href="http://localhost:3001/dashboard" style="display: inline-block; margin-top: 24px; background: #1e293b; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Go to Dashboard</a>
-        <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; text-align: center;">You're receiving this email because you're subscribed to financial insights on Welth.<br>© ${new Date().getFullYear()} Welth</p>
+        <p style="font-size: 12px; color: #94a3b8; margin-top: 32px; text-align: center;">You're receiving this email because you're subscribed to financial insights on Finlock.<br>© ${new Date().getFullYear()} Finlock</p>
       </div>
     </body>
   </html>

@@ -85,9 +85,9 @@ const generateFinancialInsights = async (stats, month) => {
       Keep it friendly and conversational.
 
       Financial Data for ${month}:
-      - Total Income: $${stats.totalIncome}
-      - Total Expenses: $${stats.totalExpenses}
-      - Net Income: $${stats.totalIncome - stats.totalExpenses}
+      - Total Income: ₹${stats.totalIncome}
+      - Total Expenses: ₹${stats.totalExpenses}
+      - Net Income: ₹${stats.totalIncome - stats.totalExpenses}
       - Expense Categories: ${Object.entries(stats.byCategory)
         .map(([category, amount]) => `${category}: $${amount}`)
         .join(", ")}
@@ -197,7 +197,7 @@ const checkBudgetAlert = inngest.createFunction(
             to: user.email,
             subject: `⚠️ Budget Alert - ${percentageUsed.toFixed(1)}% Used`,
             html: budgetAlertHtml({
-              userName: user.name,
+              userName: user.username,
               type: "budget-alert",
               data: {
                 percentageUsed: percentageUsed.toFixed(1),
@@ -260,7 +260,7 @@ const generateMonthlyReports = inngest.createFunction(
           to: user.email,
           subject: `📊 Your Monthly Financial Report - ${monthName}`,
           html: budgetAlertHtml({
-            userName: user.name,
+            userName: user.username,
             type: "monthly-report",
             data: {
               stats,
