@@ -63,15 +63,15 @@ export function AccountBarChart({ transactions }) {
   }, [filteredData]);
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl p-6 border shadow">
+    <div className="bg-gray-900 rounded-xl p-6 border shadow">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+        <h2 className="text-lg font-semibold text-gray-800">
           Transaction Overview
         </h2>
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value)}
-          className="px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white"
+          className="px-4 py-2 border rounded-md bg-gray-800 text-white"
         >
           {Object.entries(DATE_RANGES).map(([key, { label }]) => (
             <option key={key} value={key}>
@@ -83,19 +83,19 @@ export function AccountBarChart({ transactions }) {
 
       <div className="grid grid-cols-3 gap-6 mb-6 text-center">
         <div>
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Income</div>
+          <div className="text-sm text-gray-400 mb-1">Total Income</div>
           <div className="text-2xl font-bold text-green-500">
             ₹{totals.income.toFixed(2)}
           </div>
         </div>
         <div>
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Total Expense</div>
+          <div className="text-sm text-gray-400 mb-1">Total Expense</div>
           <div className="text-2xl font-bold text-red-500">
             ₹{totals.expense.toFixed(2)}
           </div>
         </div>
         <div>
-          <div className="text-sm text-gray-500 dark:text-gray-400 mb-1">Net</div>
+          <div className="text-sm text-gray-400 mb-1">Net</div>
           <div
             className={`text-2xl font-bold ${
               totals.income - totals.expense >= 0
@@ -134,11 +134,11 @@ export function AccountBarChart({ transactions }) {
       <div className="flex justify-center gap-6 mt-6">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">Income</span>
+          <span className="text-sm text-gray-400">Income</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-          <span className="text-sm text-gray-500 dark:text-gray-400">Expense</span>
+          <span className="text-sm text-gray-400">Expense</span>
         </div>
       </div>
     </div>
