@@ -8,6 +8,7 @@ const {
   changeCurrentPassword,
   getUser,
   updateAccountDetails,
+  updateUserName,
 } = require("../controllers/user.controller");
 
 const { verifyJWT } = require("../middlewares/auth.middleware");
@@ -23,5 +24,6 @@ router.post("/logout", verifyJWT, logoutUser);
 router.post("/change-password", verifyJWT, changeCurrentPassword);
 router.get("/me", verifyJWT, getUser);
 router.put("/update-account", verifyJWT, updateAccountDetails);
+router.put("/update-username", verifyJWT, updateUserName);
 
 module.exports = router;
