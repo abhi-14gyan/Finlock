@@ -345,22 +345,22 @@ const AccountPage = () => {
     <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
       {/* Decorative background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-20 left-10 w-72 h-72 ${theme.decorativeOrbs.first} rounded-full blur-3xl opacity-20`}></div>
-        <div className={`absolute top-40 right-20 w-96 h-96 ${theme.decorativeOrbs.second} rounded-full blur-3xl opacity-20`}></div>
-        <div className={`absolute bottom-20 left-1/2 w-80 h-80 ${theme.decorativeOrbs.third} rounded-full blur-3xl opacity-20`}></div>
+        <div className={`absolute top-20 left-10 w-32 h-32 sm:w-72 sm:h-72 ${theme.decorativeOrbs.first} rounded-full blur-3xl opacity-20`}></div>
+        <div className={`absolute top-40 right-20 w-48 h-48 sm:w-96 sm:h-96 ${theme.decorativeOrbs.second} rounded-full blur-3xl opacity-20`}></div>
+        <div className={`absolute bottom-20 left-1/2 w-40 h-40 sm:w-80 sm:h-80 ${theme.decorativeOrbs.third} rounded-full blur-3xl opacity-20`}></div>
       </div>
 
-      <div className="relative z-10 p-6 max-w-7xl mx-auto">
+      <div className="relative z-10 p-4 sm:p-6 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 flex-wrap md:flex-nowrap">
+        <div className="flex justify-between items-center mb-6 sm:mb-8">
           {/* Logo */}
-          <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
-            <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
-            <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
+          <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
+            <img src={logo} alt="Finlock Logo" className="h-8 w-8 sm:h-10 sm:w-10" />
+            <span className={`text-xl sm:text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
           </div>
 
           {/* Desktop Buttons */}
-          <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
+          <div className="hidden lg:flex items-center space-x-4">
             <button
               onClick={() => setIsDark(!isDark)}
               className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
@@ -403,106 +403,120 @@ const AccountPage = () => {
                 {user?.username || "User"}
               </span>
             </button>
-            {/* Overlay with blur */}
-            {showDropdown && (
-              <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end items-start z-50 p-6">
-                <div className="mt-12 mr-4">
-                  <UsernameCard onClose={() => setShowDropdown(false)} />
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center ml-auto mt-4">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
-            >
-              <Menu className="w-6 h-6 text-black dark:text-white" />
-            </button>
-          </div>
-
-          {/* Mobile Dropdown */}
-          {mobileMenuOpen && (
-            <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
-              <button
-                onClick={() => setIsDark(!isDark)}
-                className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
-              >
-                {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-                <span className={`${theme.text.primary}`}>Toggle Theme</span>
-              </button>
-
-              <button onClick={() => navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
-                <LayoutGrid className="w-4 h-4" />
-                <span>Dashboard</span>
-              </button>
-
-              <button onClick={() => navigate("/transaction", { state: { from: `/account/${accountId}` } })} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
-                <Edit2 className="w-4 h-4" />
-                <span>Add Transaction</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-between items-start mb-8">
-          <div>
-            <h1 className={`text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#EAB308' }}>
-              {accountData.name}
-            </h1>
-            <p className={`${theme.text.secondary} text-lg`}>{accountData.type}</p>
-          </div>
-          <div className="text-right">
-            <div className={`text-3xl font-bold ${theme.text.primary} mb-1`}>
-              ₹{accountData.balance.toFixed(2)}
-            </div>
-            <p className={`${theme.text.secondary}`}>
-              {transactionCount} Transactions
-            </p>
+          <div className="flex lg:hidden items-center space-x-2">
             <button
               onClick={() => setIsDark(!isDark)}
-              className={`mt-4 p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
+              className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200`}
             >
-              {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
+              {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm`}
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Dropdown */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden mb-6 space-y-2 p-4 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border">
+            <button onClick={() => navigate("/dashboard")} className="w-full px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 justify-center">
+              <LayoutGrid className="w-4 h-4" />
+              <span>Dashboard</span>
+            </button>
+
+            <button onClick={() => navigate("/transaction", { state: { from: `/account/${accountId}` } })} className="w-full px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 justify-center">
+              <Edit2 className="w-4 h-4" />
+              <span>Add Transaction</span>
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="w-full px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 justify-center"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
+
+            <div className="flex items-center justify-center space-x-2 p-2">
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt="User Avatar"
+                  referrerPolicy="no-referrer"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+              )}
+              <span className={`text-sm font-medium ${theme.text.primary}`}>
+                {user?.username || "User"}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Overlay with blur */}
+        {showDropdown && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end items-start z-50 p-4 sm:p-6">
+            <div className="mt-12 mr-0 sm:mr-4 w-full sm:w-auto">
+              <UsernameCard onClose={() => setShowDropdown(false)} />
+            </div>
+          </div>
+        )}
+
+        {/* Account Info */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+          <div className="text-center sm:text-left">
+            <h1 className={`text-2xl sm:text-4xl font-bold ${theme.text.primary} mb-2`} style={{ color: '#EAB308' }}>
+              {accountData.name}
+            </h1>
+            <p className={`${theme.text.secondary} text-base sm:text-lg`}>{accountData.type}</p>
+          </div>
+          <div className="text-center sm:text-right">
+            <div className={`text-2xl sm:text-3xl font-bold ${theme.text.primary} mb-1`}>
+              ₹{accountData.balance.toFixed(2)}
+            </div>
+            <p className={`${theme.text.secondary} text-sm sm:text-base`}>
+              {transactionCount} Transactions
+            </p>
           </div>
         </div>
 
         {/* Account Bar Chart */}
-
         {accountData?.transactions && (
-          <AccountBarChart transactions={accountData.transactions} />
+          <div className="mb-6 sm:mb-8">
+            <AccountBarChart transactions={accountData.transactions} />
+          </div>
         )}
 
-
-
         {/* Search and Filters */}
-        <div className="flex justify-between items-center mt-10 mb-6">
-          <div className="relative flex-1 max-w-md">
+        <div className="space-y-4 mb-6">
+          {/* Search Bar */}
+          <div className="relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${theme.text.muted}`} />
             <input
               type="text"
               placeholder="Search transactions..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`${theme.input} w-full pl-10 py-2 rounded-lg border focus:outline-none focus:ring-2`}
+              className={`${theme.input} w-full pl-10 py-3 rounded-lg border focus:outline-none focus:ring-2`}
             />
           </div>
-          <div className="flex space-x-4">
+
+          {/* Filters Row */}
+          <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
+              className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2 flex-1`}
             >
               <option>All Categories</option>
               <optgroup label="Income">
@@ -525,46 +539,42 @@ const AccountPage = () => {
               </optgroup>
             </select>
 
-          </div>
-
-          <div className="flex space-x-4">
             <select
               value={selectedType}
               onChange={(e) => setselectedType(e.target.value)}
-              className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
+              className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2 flex-1`}
             >
               <option>All Types</option>
               <option value="recurring">Recurring-only</option>
               <option value="non-recurring">Non-Recurring-only</option>
             </select>
 
-            {selectedTransactions.length > 0 && (
-              <div>
-                <button
-                  onClick={() => handlebulkdelete(selectedTransactions)}
-                  className="rounded-lg w-full px-4 py-2 hover:bg-red-100 text-left text-red-600"
-                >
-                  <div className="flex gap-2">
-                    <Trash className="h-5 w-5" />
-                    Delete Selected ({selectedTransactions.length})
-                  </div>
-                </button>
-              </div>
-            )}
-
-
             {(selectedCategory !== "All Categories" || selectedType !== "All Types" || searchTerm !== "" || selectedTransactions.length > 0) && (
-              <button className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2`}
-                onClick={clearFilters}>
-                <X className="h-4 w-5" />
+              <button 
+                className={`${theme.input} rounded-lg px-4 py-2 border focus:outline-none focus:ring-2 flex-shrink-0`}
+                onClick={clearFilters}
+              >
+                <X className="h-4 w-4 mx-auto" />
               </button>
             )}
-
           </div>
+
+          {/* Bulk Actions */}
+          {selectedTransactions.length > 0 && (
+            <div className="flex justify-center">
+              <button
+                onClick={() => handlebulkdelete(selectedTransactions)}
+                className="rounded-lg px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 flex items-center gap-2"
+              >
+                <Trash className="h-4 w-4" />
+                Delete Selected ({selectedTransactions.length})
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Transactions Table */}
-        <div className={`${theme.card} border backdrop-blur-sm rounded-xl overflow-hidden`}>
+        {/* Transactions Table - Desktop */}
+        <div className={`hidden md:block ${theme.card} border backdrop-blur-sm rounded-xl overflow-hidden`}>
           {/* Table Header */}
           <div className={`px-6 py-4 border-b ${theme.divider}`}>
             <div className="grid grid-cols-12 gap-4 items-center">
@@ -637,32 +647,81 @@ const AccountPage = () => {
               </div>
             ))}
           </div>
+        </div>
 
-          {/* Pagination */}
-          <div className={`px-6 py-4 border-t ${theme.divider} flex justify-between items-center`}>
-            <div className={`${theme.text.secondary} text-sm`}>
-              Page {currentPage} of {totalPages}
+        {/* Transactions Cards - Mobile */}
+        <div className="md:hidden space-y-4">
+          {paginatedTransactions.map((transaction) => (
+            <div key={transaction._id} className={`${theme.card} border backdrop-blur-sm rounded-lg p-4`}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    onChange={() => handleSelectTransaction(transaction._id)}
+                    checked={selectedTransactions.includes(transaction._id)}
+                    className="rounded border-gray-300 mt-1"
+                  />
+                  <div>
+                    <div className={`${theme.text.primary} font-medium text-sm`}>
+                      {transaction.description}
+                    </div>
+                    <div className={`${theme.text.secondary} text-xs mt-1`}>
+                      {format(parseISO(transaction.date), "dd MMM yyyy, hh:mm a")}
+                    </div>
+                  </div>
+                </div>
+                <Dropdown transaction={transaction} deleteFn={deleteFn} accountId={accountId} />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <span
+                    className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                    style={{ backgroundColor: categoryColors[transaction.category] }}
+                  >
+                    {transaction.category}
+                  </span>
+                  <div className={`${theme.text.secondary} text-xs flex items-center`}>
+                    <Clock className="w-3 h-3 mr-1" />
+                    {transaction.isRecurring ? "Recurring" : "One-time"}
+                  </div>
+                </div>
+                <div className={`font-semibold ${transaction.type === "EXPENSE" ? 'text-red-500' : 'text-green-500'}`}>
+                  {transaction.type === "EXPENSE" ? '-' : '+'}₹{Math.abs(transaction.amount).toFixed(2)}
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className={`p-2 rounded-lg ${theme.card} border bg-white hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className={`p-2 rounded-lg ${theme.card} border bg-white hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
+          ))}
+        </div>
+
+        {/* Pagination */}
+        <div className={`mt-6 ${theme.card} border backdrop-blur-sm rounded-lg px-4 py-3 flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0`}>
+          <div className={`${theme.text.secondary} text-sm`}>
+            Page {currentPage} of {totalPages}
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className={`p-2 rounded-lg ${theme.card} border bg-white hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className={`px-3 py-1 text-sm ${theme.text.primary}`}>
+              {currentPage}
+            </span>
+            <button
+              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded-lg ${theme.card} border bg-white hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
+
         {/* Footer */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-8 sm:mt-12">
           <p className={`${theme.text.muted} text-sm`}>
             Powered by Finlock
           </p>
