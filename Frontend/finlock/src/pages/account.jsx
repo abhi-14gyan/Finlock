@@ -13,6 +13,7 @@ import { AccountBarChart } from '../components/accountchart';
 
 //components
 import logo from "../assets/Finlocklogo.png";
+import UsernameCard from "../components/UsernameCard";
 
 const AccountPage = () => {
   const { accountId } = useParams();
@@ -36,7 +37,8 @@ const AccountPage = () => {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [totalIncome, setTotalIncome] = useState(0);
   const [transactionCount, settransactionCount] = useState(0);
-
+  const [showDropdown, setShowDropdown] = useState(false);
+  
   const themeStyles = {
     dark: {
       background: 'bg-[#0F0F1C]',
@@ -187,6 +189,13 @@ const AccountPage = () => {
     }
   };
 
+  const handleUserDropdown = () => {
+    setShowDropdown(true);
+  };
+
+  const closeDropdown = () => {
+    setShowDropdown(false);
+  };
 
   const clearFilters = () => {
     setSearchTerm("")
@@ -377,9 +386,31 @@ const AccountPage = () => {
               <span>Logout</span>
             </button>
 
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
-              <User className="w-5 h-5 text-white" />
-            </div>
+            <button onClick={handleUserDropdown} className="flex items-center gap-2 group">
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt="User Avatar"
+                  referrerPolicy="no-referrer"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+              )}
+              <span className={`text-sm font-medium ${theme.text.primary} group-hover:underline`}>
+                {user?.username || "User"}
+              </span>
+            </button>
+            {/* Overlay with blur */}
+            {showDropdown && (
+              <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end items-start z-50 p-6">
+                <div className="mt-12 mr-4">
+                  <UsernameCard onClose={() => setShowDropdown(false)} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -600,7 +631,7 @@ const AccountPage = () => {
                     {transaction.isRecurring ? "YES" : "NO"}
                   </div>
                   <div className="col-span-1 flex justify-end">
-                    <Dropdown transaction={transaction} deleteFn={deleteFn} accountId = {accountId} />
+                    <Dropdown transaction={transaction} deleteFn={deleteFn} accountId={accountId} />
                   </div>
                 </div>
               </div>

@@ -12,6 +12,7 @@ import { useTheme } from "../context/ThemeContext";
 import logo from "../assets/Finlocklogo.png";
 import BudgetProgress from '../components/BudgetProgress';
 import AccountDropdown from '../components/accountCardDropdown';
+import UsernameCard from "../components/UsernameCard";
 
 const Dashboard = () => {
   const [isDark, setIsDark] = useState(true);
@@ -26,6 +27,7 @@ const Dashboard = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [budgetData, setBudgetData] = useState(null);
   const [transactions, setTranscations] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   // 🔐 Protect the route
   useEffect(() => {
     if (!checkingAuth) {
@@ -127,6 +129,14 @@ const Dashboard = () => {
 
   const handleClick = () => {
     setOpenDrawer(true);
+  };
+
+  const handleUserDropdown = () => {
+    setShowDropdown(true);
+  };
+
+  const closeDropdown = () => {
+    setShowDropdown(false);
   };
 
   const handleLogout = async () => {
@@ -345,17 +355,31 @@ const Dashboard = () => {
               <LogOut className="w-4 h-4" />
               <span>Logout</span>
             </button>
-            {user?.imageUrl?
-              <img
-                src={user.imageUrl}
-                alt="User Avatar"
-                referrerPolicy="no-referrer"
-                className="w-10 h-10 rounded-full object-cover"
-              /> : <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            }
-
+            <button onClick={handleUserDropdown} className="flex items-center gap-2 group">
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt="User Avatar"
+                  referrerPolicy="no-referrer"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+              )}
+              <span className={`text-sm font-medium ${theme.text.primary} group-hover:underline`}>
+                {user?.username || "User"}
+              </span>
+              </button>
+              {/* Overlay with blur */}
+              {showDropdown && (
+                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end items-start z-50 p-6">
+                  <div className="mt-12 mr-4">
+                    <UsernameCard onClose={() => setShowDropdown(false)} />
+                  </div>
+                </div>
+              )}
           </div>
 
 

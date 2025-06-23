@@ -1,5 +1,5 @@
 const asyncHandler = require("../utils/asyncHandler.js");
-const  User  = require("../models/user.model.js");
+const User = require("../models/user.model.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 const { ApiError } = require("../utils/apiError.js");
 const { ApiResponse } = require("../utils/apiResponse.js");
@@ -88,14 +88,14 @@ const logoutUser = asyncHandler(async (req, res, next) => {
 
     const options = { httpOnly: true, secure: true, sameSite:"None" };
 
-  return res
-  .status(200)
-  .clearCookie("accessToken", options)
-  .clearCookie("refreshToken", options)
-  .json({
-    success: true,
-    message: "User logged out successfully",
-  });
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json({
+        success: true,
+        message: "User logged out successfully",
+      });
 
   } catch (error) {
     return next(new ApiError(500, error.message || "Logout failed"));
@@ -149,6 +149,23 @@ const getUser = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 
+const updateUserName = asyncHandler(async (req, res) => {
+  const { username } = req.body;
+
+  if (!username) throw new ApiError(400, "Username field is required");
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    { $set: { username } },
+    { new: true }
+  ).select("-password");
+
+  return res.status(200).json(
+    new ApiResponse(200, user, "Username Updated Successfully")
+  );
+});
+
+
 const updateAccountDetails = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
@@ -172,4 +189,5 @@ module.exports = {
   changeCurrentPassword,
   getUser,
   updateAccountDetails,
+  updateUserName,
 };
