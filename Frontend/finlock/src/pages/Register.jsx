@@ -7,9 +7,9 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
 export default function RegisterPage() {
-    const [loading, setLoading] = useState(false);
-    const {theme} = useTheme();
-    const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(false);
+  const { theme } = useTheme();
+  const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: '',
@@ -18,13 +18,13 @@ export default function RegisterPage() {
   const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate();
   const { user, checkingAuth } = useAuth();
-  
+
   useEffect(() => {
-  if (!checkingAuth && user) {
-    toast.success("Already Logged In!");
-    navigate("/dashboard");
-  }
-}, [checkingAuth, user, navigate]);
+    if (!checkingAuth && user) {
+      toast.success("Already Logged In!");
+      navigate("/dashboard");
+    }
+  }, [checkingAuth, user, navigate]);
 
 
 
@@ -44,47 +44,55 @@ export default function RegisterPage() {
   };
 
   const handleSubmit = async () => {
-  const { username, email, password, image } = formData;
+    const { username, email, password, image } = formData;
 
-  if (!username || !email || !password) {
-    toast.error("Please fill in all required fields");
-    return;
-  }
-
-  setLoading(true);
-  try {
-    const data = new FormData();
-    data.append("username", username);
-    data.append("email", email);
-    data.append("password", password);
-    if (image) data.append("imageUrl", image);
-
-    const response = await axios.post("/api/v1/users/register", data, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-
-    toast.success("Registration successful! Redirecting to login...");
-    navigate("/signin");
-  } catch (error) {
-    if (error.response?.status === 409) {
-      toast.error("Email already registered. Please login.");
-      navigate("/login");
-    } else if (error.response?.status === 400) {
-      toast.error("Invalid data. Please check your inputs.");
-    } else {
-      toast.error("Registration failed. Please try again later.");
+    if (!username || !email || !password) {
+      toast.error("Please fill in all required fields");
+      return;
     }
-  } finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+    try {
+      const data = new FormData();
+      data.append("username", username);
+      data.append("email", email);
+      data.append("password", password);
+      if (image) data.append("imageUrl", image);
+
+      const response = await axios.post("/api/v1/users/register", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      toast.success("Registration successful! Redirecting to login...");
+      navigate("/signin");
+    } catch (error) {
+      if (error.response?.status === 409) {
+        toast.error("Email already registered. Please login.");
+        navigate("/login");
+      } else if (error.response?.status === 400) {
+        toast.error("Invalid data. Please check your inputs.");
+      } else {
+        toast.error("Registration failed. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const handleSignIn = () => {
-        navigate("/signin");
+    navigate("/signin");
   };
+
+  const handleGoogleLogin = () => {
+    if (user) {
+      toast.success("Already Signed in");
+    }
+    window.location.href = "http://localhost:4000/api/v1/auth/google";
+  };
+
 
   const themeStyles = {
     dark: {
@@ -240,6 +248,14 @@ export default function RegisterPage() {
                   <span className={`px-2 ${currentTheme.dividerBg} ${currentTheme.text.secondary}`}>or</span>
                 </div>
               </div>
+
+              {/* Google Login */}
+              <button
+                onClick={handleGoogleLogin}
+                className="w-full bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md border border-gray-600 transition-colors duration-200"
+              >
+                Continue with Google
+              </button>
 
               {/* Sign In Link */}
               <div className="text-center">

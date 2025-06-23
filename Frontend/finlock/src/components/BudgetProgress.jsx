@@ -127,7 +127,7 @@ export default function BudgetProgress({ currentExpenses, isDark }) {
 
       <div className="mb-2">
         <span className={`${theme.text.secondary} text-sm`}>
-          ${budgetUsed.toFixed(2)} of ${budgetTotal.toFixed(2)} spent
+          ₹{budgetUsed.toFixed(2)} of ₹{budgetTotal.toFixed(2)} spent
         </span>
       </div>
 

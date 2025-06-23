@@ -555,7 +555,7 @@ export default function AddTransactionForm({
                                 >
                                     {accounts.map((account) => (
                                         <SelectItem key={account._id} value={account._id}>
-                                            {`${account.name} ($${parseFloat(account.balance || 0).toFixed(2)})`}
+                                            {`${account.name} (₹${parseFloat(account.balance || 0).toFixed(2)})`}
                                         </SelectItem>
                                     ))}
                                 </Select>
