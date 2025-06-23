@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Camera, Loader2 } from "lucide-react";
 import { toast } from 'react-toastify';
-import axios from "axios";
+import axios from "../utils/axios";
 
 export function ReceiptScanner({ onScanComplete }) {
   const fileInputRef = useRef(null);

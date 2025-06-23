@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import axios from "../utils/axios";
 import { format, parseISO } from "date-fns";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 import { Search, ChevronDown, Sun, Moon, Clock, MoreHorizontal, Edit2, ChevronLeft, ChevronRight, ChevronUp, Trash, X } from 'lucide-react';

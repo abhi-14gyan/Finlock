@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/InitialNavbar';
-import axios from 'axios';
+import axios from "../utils/axios";
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
