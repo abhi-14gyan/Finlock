@@ -18,8 +18,6 @@ export default function Navbar() {
 
         <div className="hidden md:flex space-x-6 text-gray-800 dark:text-gray-200">
           <a href="/" className="hover:underline">Home</a>
-          <a href="/about" className="hover:underline">About</a>
-          <a href="/contact" className="hover:underline">Contact</a>
         </div>
 
         <button
