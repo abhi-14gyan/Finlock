@@ -90,7 +90,7 @@ export default function RegisterPage() {
     if (user) {
       toast.success("Already Signed in");
     }
-    window.location.href = "http://localhost:4000/api/v1/auth/google";
+    window.location.href = "https://finlock-backend-oo7z.onrender.com/api/v1/auth/google";
   };
 
 
