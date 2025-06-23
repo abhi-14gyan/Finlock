@@ -16,8 +16,8 @@ router.get(
     const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
 
     // Set cookies and redirect to frontend
-    res.cookie("accessToken", accessToken, { httpOnly: true, secure: false });
-    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: false });
+    res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, sameSite: "None" });
+    res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "None" });
 
     res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
   }

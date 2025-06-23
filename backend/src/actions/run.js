@@ -3,7 +3,7 @@ const Account = require("../models/account.model");
 const Transaction = require("../models/transaction.model");
 
 async function seedTransactions() {
-  await mongoose.connect("mongodb+srv://Finlock:Abhi1834@finlock.5hmnklf.mongodb.net", {
+  await mongoose.connect("YOUR MongoDB URI", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
