@@ -169,9 +169,9 @@ const AddTransactionPage = () => {
                                 <span className={`${theme.text.primary}`}>Toggle Theme</span>
                             </button>
 
-                            <button className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
-                                <Plus className="w-4 h-4" />
-                                <span>Add Transaction</span>
+                            <button onClick={() => navigate("/dashboard")} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
+                                <LayoutGrid className="w-4 h-4" />
+                                <span>Dashboard</span>
                             </button>
 
                             <button
