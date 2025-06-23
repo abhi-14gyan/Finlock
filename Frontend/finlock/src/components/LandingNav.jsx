@@ -23,12 +23,6 @@ export default function LandingNav() {
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center space-x-6">
-          <a href="/features" className="text-gray-200 hover:underline">
-            Features
-          </a>
-          <a href="/contact" className="text-gray-200 hover:underline">
-            Contact
-          </a>
           <button
             onClick={() => navigate(user ? "/dashboard" : "/signin")}
             className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
@@ -55,20 +49,6 @@ export default function LandingNav() {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="mt-4 md:hidden flex flex-col space-y-4 items-start px-4">
-          <a
-            href="/features"
-            className="text-gray-200 hover:underline w-full"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Features
-          </a>
-          <a
-            href="/contact"
-            className="text-gray-200 hover:underline w-full"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Contact
-          </a>
           <button
             onClick={() => {
               navigate(user ? "/dashboard" : "/signin");
