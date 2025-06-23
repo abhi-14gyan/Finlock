@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, ChevronDown, Loader2, X } from 'lucide-react';
-import axios from 'axios';
+import axios from "../utils/axios";
 import { toast } from 'react-toastify';
 import { useLocation,useNavigate } from 'react-router-dom';
 import { ReceiptScanner } from './receiptScanner';

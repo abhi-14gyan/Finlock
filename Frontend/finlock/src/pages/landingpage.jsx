@@ -64,8 +64,8 @@ const FinlockLanding = () => {
     },
     {
       icon: Globe,
-      title: 'Global Currency',
-      description: 'Support for multiple currencies with real-time conversion rates',
+      title: 'Smart Budget Alerts',
+      description: 'Receive timely email alerts when your monthly spending exceeds 80% of your budget — stay informed, stay in control.',
       color: 'from-indigo-400 to-purple-500'
     },
     {
@@ -99,7 +99,7 @@ const FinlockLanding = () => {
 
   const testimonials = [
     {
-      name: 'Sarah Johnson',
+      name: 'Akash Kumar',
       role: 'Small Business Owner',
       avatar: 'SJ',
       rating: 5,
@@ -107,7 +107,7 @@ const FinlockLanding = () => {
       color: 'from-blue-400 to-cyan-500'
     },
     {
-      name: 'Michael Chen',
+      name: 'Rajeev Keshri',
       role: 'Freelancer',
       avatar: 'MC',
       rating: 5,
@@ -115,7 +115,7 @@ const FinlockLanding = () => {
       color: 'from-purple-400 to-pink-500'
     },
     {
-      name: 'Emily Rodriguez',
+      name: 'Priyanka Sinha',
       role: 'Financial Advisor',
       avatar: 'ER',
       rating: 5,

@@ -11,7 +11,7 @@ const app = express();
 
 require("./config/passport");
 
-Middlewares
+//Middlewares
 app.use(
   cors({
     origin: process.env.COURSE_ORIGIN,

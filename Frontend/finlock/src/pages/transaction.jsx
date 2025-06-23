@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axios from "../utils/axios";
 import { useSearchParams } from "react-router-dom";
 import AddTransactionForm from "../components/transaction-form";
 import { defaultCategories } from "../data/category";

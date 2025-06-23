@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { format, parseISO } from "date-fns";
 import { Plus, Sun, Moon, LogOut, Menu, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
 import { toast } from 'react-toastify';
-import axios from "axios";
+import axios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { CreateAccountDrawer } from '../components/CreateAccountDrawer';

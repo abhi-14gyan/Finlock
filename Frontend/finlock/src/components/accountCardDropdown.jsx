@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { MoreHorizontal } from "lucide-react";
-import axios from "axios";
+import axios from "../utils/axios";
 import { toast } from "react-toastify";
 
 const AccountDropdown = ({ accountId, onDeleteSuccess }) => {

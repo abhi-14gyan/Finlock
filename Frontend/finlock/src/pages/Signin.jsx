@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/InitialNavbar';
-import axios from 'axios';
+import axios from "../utils/axios";
 import { toast } from 'react-toastify';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
@@ -55,7 +55,7 @@ export default function SignInPage() {
     if (user) {
       toast.success("Already Signed in");
     }
-    window.location.href = "http://localhost:4000/api/v1/auth/google";
+    window.location.href = "https://finlock-backend-oo7z.onrender.com/api/v1/auth/google";
   };
 
   const handleSignUpRedirect = () => {

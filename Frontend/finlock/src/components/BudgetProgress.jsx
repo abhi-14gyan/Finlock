@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Pencil, Check, X } from "lucide-react";
-import axios from "axios";
+import axios from "../utils/axios";
 
 export default function BudgetProgress({ currentExpenses, isDark }) {
   const [isEditing, setIsEditing] = useState(false);

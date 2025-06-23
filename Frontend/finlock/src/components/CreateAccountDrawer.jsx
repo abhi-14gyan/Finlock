@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountSchema } from "../model/zod.model";
-import axios from "axios";
+import axios from "../utils/axios";
 import { toast } from "react-toastify";
 
 export function CreateAccountDrawer({ open, setOpen, onClose, children }) {
