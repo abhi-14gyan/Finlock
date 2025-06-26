@@ -119,7 +119,7 @@ const FinlockLanding = () => {
       role: 'Financial Advisor',
       avatar: 'ER',
       rating: 5,
-      text: 'I recommend Finlock to all my clients. The multi-currency support and detailed analytics make it perfect for international investors.',
+      text: 'I recommend Finlock to all my clients. The budget alert email feature is truly a money saver. Reminds you to keep saving and complete your financial goal.',
       color: 'from-green-400 to-teal-500'
     }
   ];

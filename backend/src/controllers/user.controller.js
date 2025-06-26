@@ -30,21 +30,21 @@ const registerUser = asyncHandler(async (req, res) => {
   const existedEmail = await User.findOne({ email });
   if (existedEmail) throw new ApiError(409, "Email already exists");
 
-  let imageUrl = { url: "/public/assets/DefaultUserLogo.png" }; // Default image URL
+  // let imageUrl = { url: "/public/assets/DefaultUserLogo.png" }; // Default image URL
 
-  const imageUrlLocalPath = req.files?.imageUrl?.[0]?.path;
-  if (imageUrlLocalPath) {
-    const uploadedImage = await uploadOnCloudinary(imageUrlLocalPath);
-    if (uploadedImage?.url) {
-      imageUrl = uploadedImage;
-    }
-  }
+  // const imageUrlLocalPath = req.files?.imageUrl?.[0]?.path;
+  // if (imageUrlLocalPath) {
+  //   const uploadedImage = await uploadOnCloudinary(imageUrlLocalPath);
+  //   if (uploadedImage?.url) {
+  //     imageUrl = uploadedImage;
+  //   }
+  // }
 
   const user = await User.create({
-    imageUrl: imageUrl.url,
     email,
     password,
     username,
+    imageUrl: null, // Explicitly set to null
   });
 
   const createdUser = await User.findById(user._id).select("-password -refreshToken");
