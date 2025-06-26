@@ -65,7 +65,7 @@ export function AccountBarChart({ transactions }) {
   return (
     <div className="bg-gray-900 rounded-xl p-6 border shadow">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-semibold text-grey-200">
+        <h2 className="text-lg font-semibold text-gray-400">
           Transaction Overview
         </h2>
         <select
