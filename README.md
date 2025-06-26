@@ -1,5 +1,5 @@
 # 💰 Finlock — Your Personal Financial Companion
-🌐 **Website:** [https://blinkeat-32091.web.app](https://finlock-green.vercel.app) 
+🌐 **Website:** [https://finlock-green.vercel.app](https://finlock-green.vercel.app) 
 
 **Finlock** is a full-stack MERN web application that helps users take control of their finances through personalized budgeting, intelligent tracking, and AI-powered insights — all within a clean, responsive interface.
 
