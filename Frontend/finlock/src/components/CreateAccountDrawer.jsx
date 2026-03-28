@@ -2,11 +2,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { accountSchema } from "../model/zod.model";
+import { useTheme } from "../context/ThemeContext";
 import axios from "../utils/axios";
 import { toast } from "react-toastify";
+import { X } from "lucide-react";
 
 export function CreateAccountDrawer({ open, setOpen, onClose, children }) {
   const [loading, setLoading] = useState(false);
+  const { isDark, t } = useTheme();
 
   const {
     register,
@@ -16,30 +19,17 @@ export function CreateAccountDrawer({ open, setOpen, onClose, children }) {
     reset,
   } = useForm({
     resolver: zodResolver(accountSchema),
-    defaultValues: {
-      name: "",
-      type: "CURRENT",
-      balance: "",
-      isDefault: false,
-    },
+    defaultValues: { name: "", type: "CURRENT", balance: "", isDefault: false },
   });
 
   const handleClick = async () => {
     const formData = {
-      name: watch("name"),
-      type: watch("type"),
-      balance: watch("balance"),
-      isDefault: watch("isDefault"),
+      name: watch("name"), type: watch("type"),
+      balance: watch("balance"), isDefault: watch("isDefault"),
     };
-
     try {
       setLoading(true);
-      const response = await axios.post(
-        "/api/v1/dashboard/accounts",
-        formData,
-        { withCredentials: true }
-      );
-
+      const response = await axios.post("/api/v1/dashboard/accounts", formData, { withCredentials: true });
       if (response.data.success) {
         toast.success("Account created successfully");
         reset();
@@ -59,67 +49,71 @@ export function CreateAccountDrawer({ open, setOpen, onClose, children }) {
       <button onClick={() => setOpen(true)}>{children}</button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-white dark:bg-[#1C1C2E] rounded-lg shadow-xl">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Create New Account</h2>
-              <button onClick={() => setOpen(false)} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className={`w-full max-w-md p-6 rounded-2xl shadow-xl border mx-4
+            ${isDark ? 'bg-[#1D2025] border-[#3C4A42]/20' : 'bg-white border-[#E5E7EB]'}`}>
+
+            <div className="flex justify-between items-center mb-6">
+              <h2 className={`text-lg font-semibold ${t.text.primary}`}>Create New Account</h2>
+              <button onClick={() => setOpen(false)} className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-[#272A30]' : 'hover:bg-[#F5F5F4]'} ${t.text.secondary}`}>
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-white">Account Name</label>
+                <label className={`block text-sm font-medium ${t.text.primary} mb-1.5`}>Account Name</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-purple-500"
+                  className={`w-full px-3 py-2.5 rounded-lg text-sm border transition-all duration-200 ${t.input}`}
                   placeholder="e.g., Personal account"
                   {...register("name")}
                 />
-                {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                {errors.name && <p className="text-xs text-[#FFB3AF] mt-1">{errors.name.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-white">Account Type</label>
+                <label className={`block text-sm font-medium ${t.text.primary} mb-1.5`}>Account Type</label>
                 <select
-                  className="w-full px-3 py-2 border rounded bg-[#202030] border-[#3A3A55] text-white focus:outline-none focus:ring focus:ring-purple-500"
-                  {...register("type")}
-                  defaultValue="CURRENT"
+                  className={`w-full px-3 py-2.5 rounded-lg text-sm border transition-all duration-200 ${t.input}`}
+                  {...register("type")} defaultValue="CURRENT"
                 >
                   <option value="CURRENT">Current</option>
                   <option value="SAVINGS">Savings</option>
                 </select>
-                {errors.type && <p className="text-sm text-red-500">{errors.type.message}</p>}
+                {errors.type && <p className="text-xs text-[#FFB3AF] mt-1">{errors.type.message}</p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-white">Initial Balance</label>
+                <label className={`block text-sm font-medium ${t.text.primary} mb-1.5`}>Initial Balance</label>
                 <input
-                  type="number"
-                  step="0.01"
-                  className="w-full px-3 py-2 border rounded bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:outline-none focus:ring focus:ring-purple-500"
-                  placeholder="0.00"
-                  {...register("balance")}
+                  type="number" step="0.01"
+                  className={`w-full px-3 py-2.5 rounded-lg text-sm border transition-all duration-200 ${t.input}`}
+                  placeholder="0.00" {...register("balance")}
                 />
-                {errors.balance && <p className="text-sm text-red-500">{errors.balance.message}</p>}
+                {errors.balance && <p className="text-xs text-[#FFB3AF] mt-1">{errors.balance.message}</p>}
               </div>
 
-              <div className="flex items-center justify-between border p-3 rounded-lg border-[#3A3A55]">
+              <div className={`flex items-center justify-between border p-3 rounded-xl ${t.border}`}>
                 <div>
-                  <label className="text-base font-medium text-white">Set as Default</label>
-                  <p className="text-sm text-gray-400">This account will be selected by default for transactions.</p>
+                  <label className={`text-sm font-medium ${t.text.primary}`}>Set as Default</label>
+                  <p className={`text-xs ${t.text.muted} mt-0.5`}>Used by default for transactions.</p>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={watch("isDefault")}
-                  onChange={(e) => setValue("isDefault", e.target.checked)}
-                  className="h-5 w-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4">
                 <button
                   type="button"
-                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => setValue("isDefault", !watch("isDefault"))}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200
+                    ${watch("isDefault") ? 'bg-[#10B981]' : isDark ? 'bg-[#32353B]' : 'bg-[#D1D5DB]'}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform bg-white rounded-full transition-transform duration-200 ${watch("isDefault") ? 'translate-x-6' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  className={`flex-1 px-4 py-2.5 border rounded-xl text-sm font-medium transition-colors
+                    ${isDark ? 'border-[#3C4A42]/40 text-[#8B949E] hover:bg-[#272A30]' : 'border-[#D1D5DB] text-[#6B7280] hover:bg-[#F5F5F4]'}`}
                   onClick={() => setOpen(false)}
                 >
                   Cancel
@@ -127,7 +121,8 @@ export function CreateAccountDrawer({ open, setOpen, onClose, children }) {
                 <button
                   type="button"
                   onClick={handleClick}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                  disabled={loading}
+                  className="flex-1 px-4 py-2.5 bg-gradient-to-r from-[#10B981] to-[#4EDEA3] text-[#003824] font-semibold rounded-xl text-sm hover:from-[#059669] hover:to-[#10B981] transition-all duration-200 shadow-sm disabled:opacity-50"
                 >
                   {loading ? "Creating..." : "Create Account"}
                 </button>

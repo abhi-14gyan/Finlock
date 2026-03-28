@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Pencil, Check, X } from "lucide-react";
 import axios from "../utils/axios";
+import { useTheme } from "../context/ThemeContext";
 
-export default function BudgetProgress({ currentExpenses, isDark }) {
+export default function BudgetProgress({ currentExpenses }) {
+  const { isDark, t } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [newBudget, setNewBudget] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -19,42 +21,17 @@ export default function BudgetProgress({ currentExpenses, isDark }) {
           setNewBudget(res.data.budget.amount?.toString() || "");
         }
       } catch (err) {
-        console.error("❌ Failed to fetch budget:", err);
         setMessage({ type: "error", text: "Could not load budget" });
       }
     };
-
     fetchBudget();
   }, [refreshTrigger]);
-
-  const themeStyles = {
-    dark: {
-      background: "bg-[#0F0F1C]",
-      card: "bg-[#1C1C2E]/90 border-[#2D2D40]/60",
-      input: "bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:ring-purple-500",
-      text: {
-        primary: "text-white",
-        secondary: "text-gray-400",
-        muted: "text-gray-500",
-      },
-    },
-    light: {
-      background: "bg-gradient-to-br from-white via-slate-400 to-white",
-      card: "bg-white/50 border-slate-200/70",
-      input: "bg-slate-60 border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500",
-      text: {
-        primary: "text-black-900",
-        secondary: "text-black-600",
-        muted: "text-black-500",
-      },
-    },
-  };
-
-  const theme = isDark ? themeStyles.dark : themeStyles.light;
 
   const budgetUsed = currentExpenses || 0;
   const budgetTotal = budget?.amount || 0;
   const budgetPercentage = budgetTotal > 0 ? (budgetUsed / budgetTotal) * 100 : 0;
+  const isOverBudget = budgetPercentage >= 100;
+  const isWarning = budgetPercentage >= 80 && budgetPercentage < 100;
 
   const handleUpdateBudget = async () => {
     const amount = parseFloat(newBudget);
@@ -62,29 +39,19 @@ export default function BudgetProgress({ currentExpenses, isDark }) {
       setMessage({ type: "error", text: "Please enter a valid amount" });
       return;
     }
-
     setIsLoading(true);
     setMessage({ type: "", text: "" });
-
     try {
-      const res = await axios.post(
-        "/api/v1/budget",
-        { amount },
-        { withCredentials: true }
-      );
-
+      const res = await axios.post("/api/v1/budget", { amount }, { withCredentials: true });
       if (res.data?.success) {
-        setMessage({ type: "success", text: "Budget updated successfully" });
+        setMessage({ type: "success", text: "Budget updated" });
         setIsEditing(false);
-        setRefreshTrigger(prev => !prev); // Refetch budget
+        setRefreshTrigger(prev => !prev);
       } else {
         setMessage({ type: "error", text: res.data?.error || "Update failed" });
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Failed to update budget",
-      });
+      setMessage({ type: "error", text: error.response?.data?.message || "Failed to update budget" });
     } finally {
       setIsLoading(false);
     }
@@ -96,15 +63,25 @@ export default function BudgetProgress({ currentExpenses, isDark }) {
     setMessage({ type: "", text: "" });
   };
 
+  const barColor = isOverBudget
+    ? 'bg-[#FFB3AF]'
+    : isWarning
+      ? 'bg-[#FBBF24]'
+      : 'bg-gradient-to-r from-[#10B981] to-[#4EDEA3]';
+
   return (
-    <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 mb-8`}>
+    <div className={`${t.card} border rounded-xl p-5 mb-8 animate-fade-in-up`} style={{ animationDelay: '0.1s' }}>
       <div className="flex justify-between items-center mb-4">
-        <h2 className={`text-lg font-semibold ${theme.text.primary}`}>
-          Monthly Budget (Default Account)
-        </h2>
+        <div>
+          <h2 className={`text-sm font-semibold ${t.text.primary}`}>Monthly Budget</h2>
+          <p className={`text-xs ${t.text.muted} mt-0.5`}>Default account</p>
+        </div>
         {!isEditing ? (
-          <button onClick={() => setIsEditing(true)}>
-            <Pencil className={`w-4 h-4 ${theme.text.secondary}`} />
+          <button
+            onClick={() => setIsEditing(true)}
+            className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-[#272A30]' : 'hover:bg-[#F5F5F4]'}`}
+          >
+            <Pencil className={`w-3.5 h-3.5 ${t.text.secondary}`} />
           </button>
         ) : (
           <div className="flex items-center gap-2">
@@ -112,42 +89,48 @@ export default function BudgetProgress({ currentExpenses, isDark }) {
               type="number"
               value={newBudget}
               onChange={(e) => setNewBudget(e.target.value)}
-              className={`px-2 py-1 w-24 rounded-md text-sm ${theme.input}`}
+              className={`px-2 py-1 w-24 rounded-lg text-sm ${t.input} border focus:outline-none focus:ring-2`}
               disabled={isLoading}
             />
-            <button onClick={handleUpdateBudget} disabled={isLoading}>
-              <Check className="w-4 h-4 text-green-500" />
+            <button onClick={handleUpdateBudget} disabled={isLoading} className={`p-1 rounded-lg ${isDark ? 'hover:bg-[#272A30]' : 'hover:bg-[#F5F5F4]'}`}>
+              <Check className="w-4 h-4 text-[#4EDEA3]" />
             </button>
-            <button onClick={handleCancel} disabled={isLoading}>
-              <X className="w-4 h-4 text-red-500" />
+            <button onClick={handleCancel} disabled={isLoading} className={`p-1 rounded-lg ${isDark ? 'hover:bg-[#272A30]' : 'hover:bg-[#F5F5F4]'}`}>
+              <X className="w-4 h-4 text-[#FFB3AF]" />
             </button>
           </div>
         )}
       </div>
 
-      <div className="mb-2">
-        <span className={`${theme.text.secondary} text-sm`}>
-          ₹{budgetUsed.toFixed(2)} of ₹{budgetTotal.toFixed(2)} spent
+      {/* Amount display */}
+      <div className="flex items-baseline gap-1.5 mb-3">
+        <span className={`text-lg font-bold text-tabular ${t.text.primary}`}>
+          ₹{budgetUsed.toFixed(2)}
+        </span>
+        <span className={`text-sm ${t.text.muted}`}>
+          / ₹{budgetTotal.toFixed(2)}
         </span>
       </div>
 
-      <div className="w-full bg-gray-700 rounded-full h-2 mb-2">
+      {/* Progress bar */}
+      <div className={`w-full rounded-full h-2 ${isDark ? 'bg-[#1D2025]' : 'bg-[#E5E7EB]'}`}>
         <div
-          className="h-2 rounded-full transition-all duration-300"
-          style={{backgroundColor: '#EAB308', width: `${Math.min(budgetPercentage, 100)}%` }}
-        ></div>
+          className={`h-2 rounded-full transition-all duration-500 ease-out ${barColor}`}
+          style={{ width: `${Math.min(budgetPercentage, 100)}%` }}
+        />
       </div>
 
-      <span className={`${theme.text.muted} text-sm`}>
-        {budgetPercentage.toFixed(1)}% used
-      </span>
+      <div className="flex justify-between items-center mt-2">
+        <span className={`text-xs text-tabular ${isOverBudget ? 'text-[#FFB3AF]' : isWarning ? 'text-[#FBBF24]' : t.text.muted}`}>
+          {budgetPercentage.toFixed(1)}% used
+        </span>
+        {isOverBudget && (
+          <span className="text-xs text-[#FFB3AF] font-medium">Over budget</span>
+        )}
+      </div>
 
       {message.text && (
-        <div
-          className={`mt-3 text-sm ${
-            message.type === "success" ? "text-green-500" : "text-red-500"
-          }`}
-        >
+        <div className={`mt-2 text-xs ${message.type === "success" ? "text-[#4EDEA3]" : "text-[#FFB3AF]"}`}>
           {message.text}
         </div>
       )}

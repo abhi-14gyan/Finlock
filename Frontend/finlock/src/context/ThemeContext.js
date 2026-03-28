@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { themeClasses } from "../theme";
 
 const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem("theme") || "light";
+    return localStorage.getItem("theme") || "dark";
   });
 
   useEffect(() => {
@@ -23,8 +24,11 @@ export const ThemeProvider = ({ children }) => {
     setTheme(prev => (prev === "dark" ? "light" : "dark"));
   };
 
+  const isDark = theme === "dark";
+  const t = isDark ? themeClasses.dark : themeClasses.light;
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, isDark, t }}>
       {children}
     </ThemeContext.Provider>
   );

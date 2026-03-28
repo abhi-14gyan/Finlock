@@ -1,270 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { format, parseISO } from "date-fns";
-import { Plus, Sun, Moon, LogOut, Menu, ArrowUp, ArrowDown, Edit2, User } from 'lucide-react';
+import { Plus, ArrowUp, ArrowDown, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
 import { toast } from 'react-toastify';
 import axios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
 import { useTheme } from "../context/ThemeContext";
-//components
-import logo from "../assets/Finlocklogo.png";
+import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
 import BudgetProgress from '../components/BudgetProgress';
 import AccountDropdown from '../components/accountCardDropdown';
-import UsernameCard from "../components/UsernameCard";
+import AppLayout from '../components/AppLayout';
+import { chartColors, categoryColors } from '../theme';
 
 const Dashboard = () => {
-  const [isDark, setIsDark] = useState(true);
   const [accounts, setAccounts] = useState([]);
-  const [selectedAccount, setSelectedAccount] = useState(
-    accounts.find((a) => a.isDefault)?._id || accounts[0]?._id
-  );
+  const [selectedAccount, setSelectedAccount] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const { user, setUser, checkingAuth } = useAuth();
+  const { user, checkingAuth } = useAuth();
+  const { isDark, t } = useTheme();
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [budgetData, setBudgetData] = useState(null);
-  const [transactions, setTranscations] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  // 🔐 Protect the route
+  const [transactions, setTransactions] = useState([]);
+
   useEffect(() => {
-    if (!checkingAuth) {
-      if (!user) {
-        navigate("/signin");
-      }
-    }
+    if (!checkingAuth && !user) navigate("/signin");
   }, [user, checkingAuth, navigate]);
 
-  useEffect(() => {
-    const fetchBudget = async () => {
-      const defaultAccount = accounts?.find((account) => account.isDefault);
-      //console.log(defaultAccount);
-      if (!defaultAccount) return;
-
-      try {
-        const res = await axios.get(
-          `/api/v1/budget`,
-          { withCredentials: true }
-        );
-        setBudgetData(res.data);
-        //console.log("🎯 Budget API response:", res.data);
-      } catch (err) {
-        console.error("Error fetching budget:", err);
-      }
-    };
-
-    fetchBudget();
-  }, [accounts]);
-  // Fetch accounts from database
+  // Fetch accounts
   const fetchAccounts = async () => {
     try {
       setLoading(true);
-      //console.log("Reached here");
-      const response = await axios.get('/api/v1/dashboard/accounts', {
-        withCredentials: true,
-      });
-
+      const response = await axios.get('/api/v1/dashboard/accounts', { withCredentials: true });
       if (response.status === 200) {
-        // Backend now returns { success: true, data: accounts }
         setAccounts(response.data.data || []);
-        //console.log('Accounts loaded:', response.data.data);
       }
     } catch (error) {
-      console.error('Error fetching accounts:', error);
       toast.error('Failed to fetch accounts');
     } finally {
-      //console.log("Reached finally");
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+  useEffect(() => { fetchAccounts(); }, []);
 
   useEffect(() => {
     if (accounts.length > 0 && !selectedAccount) {
-      const defaultAccount = accounts.find((a) => a.isDefault)?._id || accounts[0]._id;
-      setSelectedAccount(defaultAccount);
+      setSelectedAccount(accounts.find((a) => a.isDefault)?._id || accounts[0]._id);
     }
+  }, [accounts, selectedAccount]);
+
+  // Fetch budget
+  useEffect(() => {
+    const fetchBudget = async () => {
+      const defaultAccount = accounts?.find((account) => account.isDefault);
+      if (!defaultAccount) return;
+      try {
+        const res = await axios.get('/api/v1/budget', { withCredentials: true });
+        setBudgetData(res.data);
+      } catch (err) { /* silent */ }
+    };
+    fetchBudget();
   }, [accounts]);
 
+  // Fetch transactions
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await axios.get(
-          `/api/v1/dashboard/transactions`,
-          {},
-          { withCredentials: true }
-        );
-        //console.log("Transactions receieved", response.data.data)
-        setTranscations(response.data.data);
-      } catch (error) {
-        console.error("Failed to fetch transactions:", error);
-      }
+        const response = await axios.get('/api/v1/dashboard/transactions', {}, { withCredentials: true });
+        setTransactions(response.data.data);
+      } catch (error) { /* silent */ }
     };
-
     fetchTransactions();
   }, []);
 
-  useEffect(() => {
-    // console.log("Reached useEffect")
-    if (user?._id) {
-      console.log("User imageURL:", user.imageUrl);
-      fetchAccounts();
-    }
-  }, [user]);
-
-  // Refresh accounts when drawer closes (after creating new account)
   const handleDrawerClose = () => {
     setOpenDrawer(false);
-    fetchAccounts(); // Refresh the accounts list
+    fetchAccounts();
   };
 
-  if (checkingAuth) {
-    return <div>Loading...</div>; // or your skeleton loader
-  }
-
-  const handleClick = () => {
-    setOpenDrawer(true);
-  };
-
-  const handleUserDropdown = () => {
-    setShowDropdown(true);
-  };
-
-  const closeDropdown = () => {
-    setShowDropdown(false);
-  };
-
-  const handleLogout = async () => {
-    try {
-      const res = await axios.post("/api/v1/users/logout", {}, {
-        withCredentials: true,
-      });
-
-      if (res.status === 200) {
-        setUser(null); // Important for UI state update
-        toast.success(res.data?.message || "Logout successful");
-        navigate("/");
-      } else {
-        throw new Error("Unexpected status during logout");
-      }
-    } catch (error) {
-      toast.error("Logout failed. Please try again.");
-      console.error("Logout failed:", error?.response?.data?.message || error.message);
-    }
-  };
-
-  const handleAccountClick = (accountId) => {
-    navigate(`/account/${accountId}`);
-  };
+  const handleAccountClick = (accountId) => navigate(`/account/${accountId}`);
 
   const changeDefaultAccount = async (account) => {
     if (account.isDefault) {
       toast.error("At least one default account is required");
       return;
     }
-
     try {
-      const res = await axios.put(`/api/v1/account/default/${account._id}`, {}, { withCredentials: true });
+      await axios.put(`/api/v1/account/default/${account._id}`, {}, { withCredentials: true });
       toast.success("Default account updated");
-      fetchAccounts(); // Refresh accounts after update
+      fetchAccounts();
     } catch (error) {
-      console.error(error);
-      const message = error.response?.data?.message || "Failed to update default account";
-      toast.error(message);
+      toast.error(error.response?.data?.message || "Failed to update default account");
     }
-  };
-
-
-  const themeStyles = {
-    dark: {
-      background: 'bg-[#0F0F1C]',
-      card: 'bg-[#1C1C2E]/90 border-[#2D2D40]/60',
-      input: 'bg-[#202030] border-[#3A3A55] text-white placeholder-gray-400 focus:ring-purple-500',
-      text: {
-        primary: 'text-white',
-        secondary: 'text-gray-400',
-        muted: 'text-gray-500'
-      },
-      decorativeOrbs: {
-        first: 'bg-purple-600/30',
-        second: 'bg-pink-500/30',
-        third: 'bg-indigo-500/30'
-      },
-      divider: 'border-[#2E2E3A]',
-      dividerBg: 'bg-[#1A1A2E]'
-    },
-    light: {
-      background: 'bg-gradient-to-br from-white via-slate-400 to-white',
-      card: 'bg-white/50 border-slate-200/70',
-      input: 'bg-slate-60 border-slate-300 text-gray-900 placeholder-gray-400 focus:ring-violet-500',
-      text: {
-        primary: 'text-black-900',
-        secondary: 'text-black-600',
-        muted: 'text-black-500'
-      },
-      decorativeOrbs: {
-        first: 'bg-purple-200/30',
-        second: 'bg-pink-200/30',
-        third: 'bg-blue-200/30'
-      },
-      divider: 'border-slate-300',
-      dividerBg: 'bg-white'
-    }
-  };
-
-  const theme = isDark ? themeStyles.dark : themeStyles.light;
-  // setTheme(theme);
-
-  //Colors for Piechart
-  const COLORS = [
-    "#ef4444",
-    "#84cc16",
-    "#f97316",
-    "#06b6d4",
-    "#8b5cf6",
-    "#ec4899",
-    "#22c55e",
-  ];
-
-  const expenseData = [
-    { name: 'rental', value: 1500.00, color: '#EF4444' },
-    { name: 'entertainment', value: 304.33, color: '#10B981' },
-    { name: 'shopping', value: 1161.13, color: '#06B6D4' },
-    { name: 'travel', value: 1251.66, color: '#84CC16' }
-  ];
-
-  const budgetUsed = 4217.12;
-  const budgetTotal = 7000.00;
-  const budgetPercentage = (budgetUsed / budgetTotal) * 100;
-
-  // Function to get account type color
-  const getAccountTypeColor = (type, isDefault) => {
-    if (isDefault) return 'bg-green-400';
-
-    switch (type?.toLowerCase()) {
-      case 'savings':
-      case 'savings account':
-        return 'bg-blue-400';
-      case 'current':
-      case 'current account':
-        return 'bg-yellow-400';
-      case 'investment':
-        return 'bg-purple-400';
-      case 'credit':
-        return 'bg-red-400';
-      default:
-        return 'bg-gray-400';
-    }
-  };
-
-  // Function to capitalize first letter
-  const capitalizeFirst = (str) => {
-    return str?.charAt(0).toUpperCase() + str?.slice(1) || '';
   };
 
   const handleAccountDeleted = () => {
@@ -272,355 +101,319 @@ const Dashboard = () => {
     toast.success("Account deleted successfully");
   };
 
-  // Filter transactions for selected account
-  // console.log("Selected Account:", selectedAccount);
-  // console.log("All transactions:", transactions.map(t => ({ id: t.accountId, title: t.title })));
-
-  const accountTransactions = transactions.filter(
-    (t) => t.accountId === selectedAccount
-  );
-  //console.log("Account Transactions :", accountTransactions)
-  // Get recent transactions (last 5)
-  const recentTransactions = accountTransactions.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-
-  //console.log(recentTransactions)
-
-  // Calculate expense breakdown for current month
-  const currentDate = new Date();
-  const currentMonthExpenses = accountTransactions.filter((t) => {
-    const transactionDate = new Date(t.date);
+  if (checkingAuth) {
     return (
-      t.type === "EXPENSE" &&
-      transactionDate.getMonth() === currentDate.getMonth() &&
-      transactionDate.getFullYear() === currentDate.getFullYear()
+      <div className={`min-h-screen ${t.background} flex items-center justify-center`}>
+        <div className="animate-shimmer w-16 h-16 rounded-xl" />
+      </div>
     );
+  }
+
+  // ── Computed data ──
+  const accountTransactions = transactions.filter((tx) => tx.accountId === selectedAccount);
+  const recentTransactions = [...accountTransactions]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5);
+
+  const currentDate = new Date();
+  const currentMonthExpenses = accountTransactions.filter((tx) => {
+    const d = new Date(tx.date);
+    return tx.type === "EXPENSE" && d.getMonth() === currentDate.getMonth() && d.getFullYear() === currentDate.getFullYear();
   });
 
-  // Group expenses by category
-  const expensesByCategory = currentMonthExpenses.reduce((acc, transaction) => {
-    const category = transaction.category;
-    if (!acc[category]) {
-      acc[category] = 0;
-    }
-    acc[category] += transaction.amount;
+  const expensesByCategory = currentMonthExpenses.reduce((acc, tx) => {
+    acc[tx.category] = (acc[tx.category] || 0) + tx.amount;
     return acc;
   }, {});
 
-  // Format data for pie chart
-  const pieChartData = Object.entries(expensesByCategory).map(
-    ([category, amount]) => ({
-      name: category,
-      value: amount,
-    })
-  );
+  const pieChartData = Object.entries(expensesByCategory).map(([category, amount]) => ({
+    name: category,
+    value: amount,
+  }));
 
+  // Overview stats
+  const totalBalance = accounts.reduce((sum, acct) => sum + parseFloat(acct.balance || 0), 0);
+  const monthlyIncome = accountTransactions
+    .filter(tx => {
+      const d = new Date(tx.date);
+      return tx.type === "INCOME" && d.getMonth() === currentDate.getMonth() && d.getFullYear() === currentDate.getFullYear();
+    })
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const monthlyExpenses = currentMonthExpenses.reduce((sum, tx) => sum + tx.amount, 0);
+  const capitalizeFirst = (str) => str?.charAt(0).toUpperCase() + str?.slice(1) || '';
+
+  // Custom tooltip for donut chart
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className={`${t.card} border rounded-lg px-3 py-2 shadow-lg`}>
+          <p className={`text-sm font-medium ${t.text.primary}`}>{capitalizeFirst(payload[0].name)}</p>
+          <p className="text-sm text-tabular font-semibold text-[#4EDEA3]">
+            ₹{payload[0].value.toFixed(2)}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
-    <div className={`min-h-screen ${theme.background} transition-all duration-300 relative overflow-hidden`}>
-      {/* Decorative background orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-20 left-10 w-72 h-72 ${theme.decorativeOrbs.first} rounded-full blur-3xl opacity-20`}></div>
-        <div className={`absolute top-40 right-20 w-96 h-96 ${theme.decorativeOrbs.second} rounded-full blur-3xl opacity-20`}></div>
-        <div className={`absolute bottom-20 left-1/2 w-80 h-80 ${theme.decorativeOrbs.third} rounded-full blur-3xl opacity-20`}></div>
+    <AppLayout>
+      {/* ── Page Header ── */}
+      <div className="mb-8 animate-fade-in-up">
+        <h1 className={`text-3xl font-bold ${t.text.primary} tracking-tight`}>
+          Dashboard
+        </h1>
+        <p className={`${t.text.secondary} text-sm mt-1`}>
+          Welcome back{user?.username ? `, ${user.username}` : ''}
+        </p>
       </div>
 
-      <div className="relative z-10 p-6 max-w-7xl mx-auto">
-        {/* Header */}
+      {/* ── Overview Stats ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {[
+          {
+            label: 'Total Balance',
+            value: totalBalance,
+            icon: Wallet,
+            color: 'text-[#4EDEA3]',
+            bg: 'bg-[#4EDEA3]/10',
+          },
+          {
+            label: 'Monthly Income',
+            value: monthlyIncome,
+            icon: TrendingUp,
+            color: 'text-[#4EDEA3]',
+            bg: 'bg-[#4EDEA3]/10',
+          },
+          {
+            label: 'Monthly Expenses',
+            value: monthlyExpenses,
+            icon: TrendingDown,
+            color: 'text-[#FFB3AF]',
+            bg: 'bg-[#FFB3AF]/10',
+          },
+        ].map((stat, i) => (
+          <div
+            key={stat.label}
+            className={`${t.card} border rounded-xl p-5 animate-fade-in-up`}
+            style={{ animationDelay: `${i * 0.08}s` }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className={`text-label-upper ${t.text.secondary}`}>{stat.label}</span>
+              <div className={`w-9 h-9 ${stat.bg} rounded-lg flex items-center justify-center`}>
+                <stat.icon className={`w-[18px] h-[18px] ${stat.color}`} />
+              </div>
+            </div>
+            <p className={`text-2xl font-bold ${t.text.primary} text-tabular tracking-tight`}>
+              ₹{stat.value.toFixed(2)}
+            </p>
+          </div>
+        ))}
+      </div>
 
-        <div className="flex justify-between items-center mb-8 flex-wrap md:flex-nowrap">
-          {/* Logo */}
-          <div className="flex items-center space-x-3 cursor-pointer hover:scale-105 transition-transform" onClick={() => navigate("/")}>
-            <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
-            <span className={`text-2xl font-bold ${theme.text.primary}`}>Finlock</span>
+      {/* ── Budget Progress ── */}
+      <BudgetProgress currentExpenses={budgetData?.currentExpenses} />
+
+      {/* ── Charts Row ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Recent Transactions */}
+        <div className={`${t.card} border rounded-xl p-6 animate-fade-in-up`} style={{ animationDelay: '0.15s' }}>
+          <div className="flex justify-between items-center mb-5">
+            <h2 className={`text-base font-semibold ${t.text.primary}`}>Recent Transactions</h2>
+            <select
+              value={selectedAccount || ''}
+              onChange={(e) => setSelectedAccount(e.target.value)}
+              className={`${t.input} rounded-lg px-3 py-1.5 text-sm border focus:outline-none focus:ring-2 cursor-pointer`}
+            >
+              {accounts.map((account) => (
+                <option key={account._id} value={account._id}>
+                  {account.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Desktop Buttons */}
-          <div className="hidden md:flex items-center space-x-4 mt-4 md:mt-0">
-            <button
-              onClick={() => setIsDark(!isDark)}
-              className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm transition-all duration-200 hover:scale-105`}
-            >
-              {isDark ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
-            </button>
-
-            <button onClick={() => navigate("/transaction", { state: { from: '/dashboard' } })} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors">
-              <Edit2 className="w-4 h-4" />
-              <span>Add Transaction</span>
-            </button>
-
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2 hover:bg-gray-800 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Logout</span>
-            </button>
-            <button onClick={handleUserDropdown} className="flex items-center gap-2 group">
-              {user?.imageUrl ? (
-                <img
-                  src={user.imageUrl}
-                  alt="User Avatar"
-                  referrerPolicy="no-referrer"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-              )}
-              <span className={`text-sm font-medium ${theme.text.primary} group-hover:underline`}>
-                {user?.username || "User"}
-              </span>
-              </button>
-              {/* Overlay with blur */}
-              {showDropdown && (
-                <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex justify-end items-start z-50 p-6">
-                  <div className="mt-12 mr-4">
-                    <UsernameCard onClose={() => setShowDropdown(false)} />
+          {recentTransactions.length === 0 ? (
+            <div className={`text-center py-8 ${t.text.muted}`}>
+              <p className="text-sm">No transactions yet</p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {recentTransactions.map((tx, i) => (
+                <div
+                  key={tx._id || i}
+                  className={`flex justify-between items-center py-3 px-3 rounded-lg transition-colors duration-150 ${i % 2 === 0 ? '' : isDark ? 'bg-[#0B0E13]/40' : 'bg-[#F5F5F4]/60'}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${tx.type === 'INCOME' ? 'bg-[#4EDEA3]/10' : 'bg-[#FFB3AF]/10'}`}>
+                      {tx.type === 'INCOME'
+                        ? <ArrowUp className="w-4 h-4 text-[#4EDEA3]" />
+                        : <ArrowDown className="w-4 h-4 text-[#FFB3AF]" />
+                      }
+                    </div>
+                    <div>
+                      <p className={`text-sm font-medium ${t.text.primary}`}>{tx.description || tx.title || capitalizeFirst(tx.category)}</p>
+                      <p className={`text-xs ${t.text.muted}`}>
+                        {format(parseISO(tx.date), "dd MMM yyyy")}
+                      </p>
+                    </div>
                   </div>
+                  <span className={`text-sm font-semibold text-tabular ${tx.type === 'INCOME' ? 'text-[#4EDEA3]' : 'text-[#FFB3AF]'}`}>
+                    {tx.type === 'INCOME' ? '+' : '-'}₹{Math.abs(tx.amount).toFixed(2)}
+                  </span>
                 </div>
-              )}
-          </div>
-
-
-
-          {/* Mobile Menu Toggle */}
-          <div className="flex md:hidden items-center ml-auto mt-4">
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-md bg-gray-100 dark:bg-gray-800"
-            >
-              <Menu className="w-6 h-6 text-black dark:text-white" />
-            </button>
-          </div>
-
-          {/* Mobile Dropdown */}
-          {mobileMenuOpen && (
-            <div className="w-full mt-4 md:hidden flex flex-col space-y-2">
-              <button
-                onClick={() => setIsDark(!isDark)}
-                className={`p-2 rounded-lg ${theme.card} border backdrop-blur-sm flex items-center space-x-2`}
-              >
-                {isDark ? <Sun className="w-4 h-4 text-yellow-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-                <span className={`${theme.text.primary}`}>Toggle Theme</span>
-              </button>
-
-              <button onClick={() => navigate("/transaction", { state: { from: '/dashboard' } })} className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2">
-                <Plus className="w-4 h-4" />
-                <span>Add Transaction</span>
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 bg-black text-white rounded-lg flex items-center space-x-2"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Dashboard Title */}
-        <h1 className={`text-4xl font-bold ${theme.text.primary} mb-8`}>Dashboard</h1>
+        {/* Monthly Expense Breakdown (Donut Chart) */}
+        <div className={`${t.card} border rounded-xl p-6 animate-fade-in-up`} style={{ animationDelay: '0.2s' }}>
+          <h2 className={`text-base font-semibold ${t.text.primary} mb-5`}>Monthly Expenses</h2>
 
-        {/* Budget Section */}
-        <BudgetProgress currentExpenses={budgetData?.currentExpenses} isDark={isDark} />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Recent Transactions */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
-            <div className="flex justify-between items-center mb-4 ">
-              <h2 className={`text-lg font-semibold ${theme.text.primary}`}>Recent Transactions</h2>
-              <select
-                value={selectedAccount}
-                onChange={(e) => setSelectedAccount(e.target.value)}
-                className={`${theme.input} rounded-lg px-3 py-1 text-sm border focus:outline-none focus:ring-2 hover:scale-105 transition-transform cursor-pointer`}
-              >
-                {accounts.map((account) => (
-                  <option key={account._id} value={account._id}>
-                    {account.name}
-                  </option>
-                ))}
-              </select>
+          {pieChartData.length === 0 ? (
+            <div className={`text-center py-12 ${t.text.muted}`}>
+              <p className="text-sm">No expenses this month</p>
             </div>
-            <div className="space-y-3">
-              {recentTransactions.map((transaction) => (
-                <div key={transaction.id} className="flex justify-between items-center py-2">
-                  <div>
-                    <h3 className={`font-medium ${theme.text.primary} text-sm`}>{transaction.title}</h3>
-                    <p className={`${theme.text.muted} text-xs`}>
-                      {format(parseISO(transaction.date), "dd-MM-yyyy hh:mm a")}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {transaction.type === 'INCOME' ? (
-                      <ArrowUp className="w-4 h-4 text-green-500" />
-                    ) : (
-                      <ArrowDown className="w-4 h-4 text-red-500" />
-                    )}
-                    <span className={`font-semibold ${transaction.type === 'INCOME' ? 'text-green-500' : 'text-red-500'}`}>
-                      ₹{Math.abs(transaction.amount).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Monthly Expense Breakdown */}
-          <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6`}>
-            <h2 className={`text-lg font-semibold ${theme.text.primary} mb-4`}>Monthly Expense Breakdown</h2>
-
-            {/* Responsive flex layout */}
-            <div className="flex flex-col sm:flex-row items-center justify-center">
-
-              {/* Chart container with responsive width/height */}
-              <div className="w-56 h-56 sm:w-64 sm:h-64 mb-4 sm:mb-0">
+          ) : (
+            <div className="flex flex-col items-center">
+              <div className="w-48 h-48 sm:w-56 sm:h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={pieChartData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={50}
-                      outerRadius={70}
-                      paddingAngle={2}
+                      innerRadius={55}
+                      outerRadius={80}
+                      paddingAngle={3}
                       dataKey="value"
-                      labelLine={false}
-                      label={({ name }) => name}
+                      strokeWidth={0}
                     >
                       {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
                       ))}
                     </Pie>
+                    <Tooltip content={<CustomTooltip />} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
 
               {/* Legend */}
-              <div className="sm:ml-6 space-y-2 text-center sm:text-left">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4">
                 {pieChartData.map((item, index) => (
-                  <div key={index} className="flex items-center justify-center sm:justify-start space-x-2">
+                  <div key={index} className="flex items-center gap-2">
                     <div
-                      className="w-3 h-3 rounded-full"
-                      style={{ backgroundColor: item.color }}
-                    ></div>
-                    <span className={`${theme.text.secondary} text-sm`}>
-                      {item.name}: ₹{item.value.toFixed(2)}
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: chartColors[index % chartColors.length] }}
+                    />
+                    <span className={`text-xs ${t.text.secondary} truncate`}>
+                      {capitalizeFirst(item.name)}
+                    </span>
+                    <span className={`text-xs ${t.text.primary} text-tabular font-medium ml-auto`}>
+                      ₹{item.value.toFixed(0)}
                     </span>
                   </div>
                 ))}
               </div>
             </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Account Cards ── */}
+      <div className="mb-4">
+        <h2 className={`text-base font-semibold ${t.text.primary} mb-4`}>Your Accounts</h2>
+      </div>
+
+      <CreateAccountDrawer open={openDrawer} setOpen={setOpenDrawer} onClose={handleDrawerClose} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+        {/* Add Account Card */}
+        <div
+          onClick={() => setOpenDrawer(true)}
+          className={`${t.card} border border-dashed rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] cursor-pointer transition-all duration-200 ${t.cardHover} group`}
+        >
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-colors duration-200 ${isDark ? 'bg-[#272A30] group-hover:bg-[#4EDEA3]/15' : 'bg-[#F5F5F4] group-hover:bg-[#10B981]/15'}`}>
+            <Plus className={`w-6 h-6 ${t.text.secondary} group-hover:text-[#4EDEA3] transition-colors`} />
           </div>
+          <span className={`text-sm ${t.text.secondary} group-hover:text-[#4EDEA3] transition-colors`}>Add New Account</span>
         </div>
 
         {/* Account Cards */}
-        <CreateAccountDrawer open={openDrawer} setOpen={setOpenDrawer} onClose={handleDrawerClose} />
-
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Loading skeleton */}
-            {/* Add New Account */}
-            <div
-              onClick={handleClick}
-              className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
-            >
-              <Plus className={`w-12 h-12 ${theme.text.secondary} mb-3`} />
-              <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
-            </div>
-
-
-          </div>
+          Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className={`${t.card} border rounded-xl p-6 min-h-[160px] animate-shimmer`} />
+          ))
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Add New Account */}
+          accounts.map((account, i) => (
             <div
-              onClick={handleClick}
-              className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
+              key={account._id}
+              onClick={() => handleAccountClick(account._id)}
+              className={`${t.card} border rounded-xl p-6 min-h-[160px] cursor-pointer transition-all duration-200 ${t.cardHover} animate-fade-in-up`}
+              style={{ animationDelay: `${i * 0.06}s` }}
             >
-              <Plus className={`w-12 h-12 ${theme.text.secondary} mb-3`} />
-              <span className={`${theme.text.secondary} text-sm`}>Add New Account</span>
-            </div>
-
-            {/* Dynamic Account Cards */}
-            {accounts.map((account) => (
-              <div
-                key={account._id}
-                onClick={() => handleAccountClick(account._id)}
-                className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 min-h-[180px] hover:scale-105 transition-transform cursor-pointer`}
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className={`font-semibold ${theme.text.primary}`}>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className={`font-semibold ${t.text.primary} text-[15px]`}>
                     {capitalizeFirst(account.name)}
                   </h3>
-
-                  {/* Default Account Switch (Click Protected) */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent navigation
-                      changeDefaultAccount(account);
-                    }}
-                    className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${account.isDefault ? 'bg-green-500' : 'bg-gray-300'
-                      }`}
-                  >
-                    <span
-                      className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${account.isDefault ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                    />
-                  </button>
-
-                  {/* Account Dropdown (Click Protected) */}
-                  <div
-                    onClick={(e) => e.stopPropagation()} // Stop card click from triggering
-                  >
-                    <AccountDropdown
-                      accountId={account._id}
-                      onDeleteSuccess={handleAccountDeleted}
-                    />
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <span className={`text-2xl font-bold ${theme.text.primary}`}>
-                    ₹{parseFloat(account.balance).toFixed(2)}
-                  </span>
-                  <p className={`${theme.text.muted} text-sm`}>
+                  <p className={`text-xs ${t.text.muted} mt-0.5`}>
                     {capitalizeFirst(account.type)}
-                    {account.isDefault && <span className="text-green-400 ml-2">(Default)</span>}
+                    {account.isDefault && (
+                      <span className="text-[#4EDEA3] ml-1.5">• Default</span>
+                    )}
                   </p>
                 </div>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-1">
-                    <ArrowUp className="w-4 h-4 text-green-500" />
-                    <span className={`${theme.text.secondary} text-sm`}>Income</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <ArrowDown className="w-4 h-4 text-red-500" />
-                    <span className={`${theme.text.secondary} text-sm`}>Expense</span>
-                  </div>
+
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  {/* Default toggle */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); changeDefaultAccount(account); }}
+                    className={`relative inline-flex items-center h-5 rounded-full w-9 transition-colors duration-200 ${account.isDefault ? 'bg-[#10B981]' : isDark ? 'bg-[#32353B]' : 'bg-[#D1D5DB]'}`}
+                  >
+                    <span className={`inline-block w-3.5 h-3.5 transform bg-white rounded-full transition-transform duration-200 ${account.isDefault ? 'translate-x-[18px]' : 'translate-x-[3px]'}`} />
+                  </button>
+
+                  <AccountDropdown accountId={account._id} onDeleteSuccess={handleAccountDeleted} />
                 </div>
               </div>
-            ))}
 
-            {/* Show message if no accounts */}
-            {accounts.length === 0 && (
-              <div className={`${theme.card} border backdrop-blur-sm rounded-xl p-6 flex flex-col items-center justify-center min-h-[180px] col-span-full`}>
-                <p className={`${theme.text.secondary} text-center`}>
-                  No accounts found. Create your first account to get started!
-                </p>
+              <p className={`text-2xl font-bold ${t.text.primary} text-tabular tracking-tight`}>
+                ₹{parseFloat(account.balance).toFixed(2)}
+              </p>
+
+              <div className="flex items-center gap-4 mt-3">
+                <div className="flex items-center gap-1">
+                  <ArrowUp className="w-3.5 h-3.5 text-[#4EDEA3]" />
+                  <span className={`text-xs ${t.text.secondary}`}>Income</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <ArrowDown className="w-3.5 h-3.5 text-[#FFB3AF]" />
+                  <span className={`text-xs ${t.text.secondary}`}>Expense</span>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          ))
         )}
 
-        {/* Footer */}
-        <div className="text-center mt-12">
-          <p className={`${theme.text.muted} text-sm`}>
-            Powered by Finlock
-          </p>
-        </div>
+        {!loading && accounts.length === 0 && (
+          <div className={`${t.card} border rounded-xl p-6 flex flex-col items-center justify-center min-h-[160px] col-span-full`}>
+            <p className={`${t.text.secondary} text-center text-sm`}>
+              No accounts found. Create your first account to get started!
+            </p>
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Footer */}
+      <div className="text-center py-6">
+        <p className={`${t.text.muted} text-xs`}>
+          Powered by Finlock
+        </p>
+      </div>
+    </AppLayout>
   );
 };
 

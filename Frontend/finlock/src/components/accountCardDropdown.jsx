@@ -2,12 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { MoreHorizontal } from "lucide-react";
 import axios from "../utils/axios";
 import { toast } from "react-toastify";
+import { useTheme } from "../context/ThemeContext";
 
 const AccountDropdown = ({ accountId, onDeleteSuccess }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const menuRef = useRef(null);
+  const { isDark, t } = useTheme();
 
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
@@ -19,7 +21,6 @@ const AccountDropdown = ({ accountId, onDeleteSuccess }) => {
       setConfirmOpen(false);
       if (onDeleteSuccess) onDeleteSuccess();
     } catch (error) {
-      console.error("Failed to delete account:", error);
       toast.error("Error deleting account");
     } finally {
       setIsDeleting(false);
@@ -39,41 +40,35 @@ const AccountDropdown = ({ accountId, onDeleteSuccess }) => {
 
   return (
     <div className="relative flex justify-end" ref={menuRef}>
-      <button
-        onClick={toggleMenu}
-        className="p-1 hover:bg-gray-100 rounded text-gray-600"
-      >
+      <button onClick={toggleMenu} className={`p-1 rounded-lg transition-colors ${isDark ? 'hover:bg-[#272A30]' : 'hover:bg-[#F5F5F4]'} ${t.text.muted}`}>
         <MoreHorizontal className="h-4 w-4" />
       </button>
 
       {isOpen && (
-        <div onClick={(e) => e.stopPropagation()}  className="absolute right-0 mt-2 w-32 bg-white border rounded shadow-md z-50 text-sm">
+        <div onClick={(e) => e.stopPropagation()} className={`absolute right-0 mt-8 w-32 rounded-lg shadow-lg z-50 text-sm border ${isDark ? 'bg-[#272A30] border-[#3C4A42]/40' : 'bg-white border-[#E5E7EB]'}`}>
           <button
             onClick={() => setConfirmOpen(true)}
-            className="w-full px-4 py-2 hover:bg-red-100 text-left text-red-600"
+            className={`w-full px-4 py-2 text-left rounded-lg transition-colors ${isDark ? 'hover:bg-[#FFB3AF]/10' : 'hover:bg-[#FFB3AF]/10'} text-[#FFB3AF]`}
           >
             Delete
           </button>
         </div>
       )}
 
-      {/* Confirmation Popup */}
       {confirmOpen && (
-        <div onClick={(e) => e.stopPropagation()} className="absolute right-0 mt-14 w-64 bg-white border border-gray-300 rounded shadow-md p-4 z-50">
-          <p className="text-sm mb-3 text-gray-700">
-            Are you sure you want to delete this account?
-          </p>
+        <div onClick={(e) => e.stopPropagation()} className={`absolute right-0 mt-16 w-64 rounded-xl shadow-lg p-4 z-50 border ${isDark ? 'bg-[#272A30] border-[#3C4A42]/40' : 'bg-white border-[#E5E7EB]'}`}>
+          <p className={`text-sm mb-3 ${t.text.secondary}`}>Are you sure you want to delete this account?</p>
           <div className="flex justify-end space-x-2">
             <button
               onClick={() => setConfirmOpen(false)}
-              className="px-3 py-1 text-sm rounded bg-gray-100 hover:bg-gray-200 text-gray-700"
+              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${isDark ? 'bg-[#32353B] hover:bg-[#36393F] text-[#E1E2EA]' : 'bg-[#F5F5F4] hover:bg-[#E5E7EB] text-[#111827]'}`}
             >
               Cancel
             </button>
             <button
               onClick={handleDelete}
               disabled={isDeleting}
-              className="px-3 py-1 text-sm rounded bg-red-500 hover:bg-red-600 text-white disabled:opacity-50"
+              className="px-3 py-1.5 text-sm rounded-lg bg-[#FFB3AF]/20 hover:bg-[#FFB3AF]/30 text-[#FFB3AF] disabled:opacity-50 transition-colors"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </button>

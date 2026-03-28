@@ -1,308 +1,225 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart3, Users, DollarSign, Star, Zap, CreditCard, Globe, TrendingUp, Target, Scan, Clock } from 'lucide-react';
+import React from "react";
+import LandingNav from "../components/LandingNav";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from '../context/AuthContext';
-//componenets
-import LandingNav from '../components/LandingNav';
-import logo from "../assets/Finlocklogo.png";
-import TiltedImageSection from './image1';
+import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
+import {
+  BarChart3, PieChart, TrendingUp, Shield, Zap, Target,
+  ArrowRight, Star,
+} from "lucide-react";
 
-const FinlockLanding = () => {
-  const [activeStep, setActiveStep] = useState(0);
-  const { user, checkingAuth } = useAuth();
+export default function LandingPage() {
+  const { user } = useAuth();
+  const { isDark, t } = useTheme();
   const navigate = useNavigate();
-  // Auto-cycle through activation protocol steps
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % 3);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const checkAuth = () => {
-    if (!checkingAuth) {
-      if (user) {
-        navigate("/dashboard");
-      } else {
-        navigate("/signin");
-      }
-    }
-  };
-
-
-  const stats = [
-    { icon: Users, value: '1K+', label: 'Active Users', color: 'from-blue-400 to-purple-500' },
-    { icon: DollarSign, value: '$1k+', label: 'Transactions Tracked', color: 'from-yellow-400 to-orange-500' },
-    { icon: Zap, value: '99.9%', label: 'Uptime', color: 'from-red-400 to-pink-500' },
-    { icon: Star, value: '4.9/5', label: 'User Rating', color: 'from-green-400 to-teal-500' }
-  ];
 
   const features = [
-    {
-      icon: BarChart3,
-      title: 'Quantum Analytics',
-      description: 'Get detailed insights into your spending patterns with AI-powered analytics',
-      color: 'from-cyan-400 to-blue-500'
-    },
-    {
-      icon: Scan,
-      title: 'Neural Receipt Scanner',
-      description: 'Extract data automatically from receipts using advanced AI technology',
-      color: 'from-pink-400 to-purple-500'
-    },
-    {
-      icon: Clock,
-      title: 'Predictive Planning',
-      description: 'Create and manage budgets with intelligent recommendations',
-      color: 'from-green-400 to-emerald-500'
-    },
-    {
-      icon: CreditCard,
-      title: 'Multi-Account Sync',
-      description: 'Manage multiple accounts and credit cards in one unified interface',
-      color: 'from-orange-400 to-red-500'
-    },
-    {
-      icon: Globe,
-      title: 'Smart Budget Alerts',
-      description: 'Receive timely email alerts when your monthly spending exceeds 80% of your budget — stay informed, stay in control.',
-      color: 'from-indigo-400 to-purple-500'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Automated Insights',
-      description: 'Get automated financial insights and recommendations instantly',
-      color: 'from-yellow-400 to-orange-500'
-    }
+    { icon: BarChart3, title: "Smart Analytics", desc: "Visualize spending patterns with elegant charts and intelligent categorization." },
+    { icon: PieChart, title: "Expense Tracking", desc: "Categorize every transaction with precision. See where your money flows." },
+    { icon: TrendingUp, title: "Budget Goals", desc: "Set monthly budgets and track progress with real-time visual indicators." },
+    { icon: Shield, title: "Bank-Grade Security", desc: "Your financial data is encrypted end-to-end with enterprise-grade protection." },
+    { icon: Zap, title: "Receipt Scanner", desc: "Snap a photo and auto-fill transactions using AI-powered scanning." },
+    { icon: Target, title: "Multi-Account", desc: "Manage checking, savings, and investment accounts in one unified view." },
   ];
 
-  const activationSteps = [
-    {
-      icon: CreditCard,
-      title: 'Initialize Account',
-      description: 'Get started in minutes with our secure quantum sign-up process',
-      step: '01'
-    },
-    {
-      icon: BarChart3,
-      title: 'Sync Financial Data',
-      description: 'Automatically categorize and track your transactions in real-time',
-      step: '02'
-    },
-    {
-      icon: Target,
-      title: 'Receive AI Insights',
-      description: 'Get AI-powered insights and recommendations to optimize your finances',
-      step: '03'
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: 'Akash Kumar',
-      role: 'Small Business Owner',
-      avatar: 'SJ',
-      rating: 5,
-      text: 'Finlock has transformed how I manage my business finances. The AI insights have helped me identify cost-saving opportunities I never knew existed.',
-      color: 'from-blue-400 to-cyan-500'
-    },
-    {
-      name: 'Rajeev Keshri',
-      role: 'Freelancer',
-      avatar: 'MC',
-      rating: 5,
-      text: 'The receipt scanning feature saves me hours each month. Now I can focus on my work instead of manual data entry and expense tracking.',
-      color: 'from-purple-400 to-pink-500'
-    },
-    {
-      name: 'Priyanka Sinha',
-      role: 'Financial Advisor',
-      avatar: 'ER',
-      rating: 5,
-      text: 'I recommend Finlock to all my clients. The budget alert email feature is truly a money saver. Reminds you to keep saving and complete your financial goal.',
-      color: 'from-green-400 to-teal-500'
-    }
+  const stats = [
+    { value: "10K+", label: "Active Users" },
+    { value: "₹2.5Cr+", label: "Tracked" },
+    { value: "99.9%", label: "Uptime" },
+    { value: "4.9★", label: "Rating" },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-1000 to-slate-900 text-white">
-      {/* Hero Section */}
+    <div className={`min-h-screen ${t.background} transition-colors duration-200`}>
       <LandingNav />
-      <section className="text-center py-10 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-purple-500/10 blur-3xl"></div>
-        <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="inline-flex items-center bg-cyan-500/20 backdrop-blur-sm border border-cyan-500/30 rounded-full px-4 py-2 mb-8">
-            <Zap className="w-4 h-4 mr-2 text-cyan-400" />
-            <span className="text-sm text-cyan-300">AI-Powered Financial Intelligence</span>
+
+      {/* ── Hero ── */}
+      <section className="relative overflow-hidden">
+        {/* Subtle ambient glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#10B981]/[0.04] rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#4EDEA3]/[0.03] rounded-full blur-[120px]" />
+        </div>
+
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8 pt-24 pb-20 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border text-xs font-medium mb-8 animate-fade-in-up"
+            style={{
+              background: isDark ? 'rgba(16, 185, 129, 0.08)' : 'rgba(16, 185, 129, 0.06)',
+              borderColor: isDark ? 'rgba(78, 222, 163, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+              color: '#4EDEA3',
+            }}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Intelligent Personal Finance
           </div>
 
-          <h1 className="text-6xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
-            Finlock <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Your Personal</span>
-            <br />
-            AI Financial Companion
+          <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold ${t.text.primary} tracking-tight leading-tight mb-6 animate-fade-in-up`} style={{ animationDelay: '0.1s' }}>
+            Your money,<br />
+            <span className="bg-gradient-to-r from-[#10B981] to-[#4EDEA3] bg-clip-text text-transparent">
+              beautifully managed.
+            </span>
           </h1>
 
-          <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            Manage expenses, create smart budgets, and unlock powerful AI-driven insights — all in one futuristic platform.
+          <p className={`text-lg ${t.text.secondary} max-w-2xl mx-auto mb-10 animate-fade-in-up`} style={{ animationDelay: '0.2s' }}>
+            Track expenses, set budgets, and gain actionable insights into your financial life.
+            Built for people who value clarity and precision.
           </p>
 
-          <button onClick={checkAuth} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-8 py-4 rounded-lg text-lg font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
-            Get Started for Free
-            <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">→</span>
-          </button>
-        </div>
-      </section>
-
-      {/*image1*/}
-      <TiltedImageSection />
-
-      {/*why finlock*/}
-      <section className="py-10 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Why Finlock?
-            </h2>
-            <p className="text-xl text-gray-300">
-              Most people struggle to understand where their money goes. Traditional budgeting tools are outdated, and financial advice is often generic. Finlock changes that. With our AI-powered system, you get a personalized financial agent that adapts to your goals, predicts your spending behavior, and guides you with smart insights — effortlessly.
-            </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <button
+              onClick={() => navigate(user ? "/dashboard" : "/register")}
+              className="group px-7 py-3.5 bg-gradient-to-r from-[#10B981] to-[#4EDEA3] text-[#003824] font-semibold rounded-xl hover:from-[#059669] hover:to-[#10B981] transition-all duration-200 shadow-sm flex items-center gap-2 text-sm"
+            >
+              {user ? "Go to Dashboard" : "Get Started Free"}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button
+              onClick={() => navigate("/signin")}
+              className={`px-7 py-3.5 border rounded-xl text-sm font-medium transition-all duration-200
+                ${isDark ? 'border-[#3C4A42]/40 text-[#E1E2EA] hover:bg-[#272A30]' : 'border-[#D1D5DB] text-[#111827] hover:bg-[#F5F5F4]'}`}
+            >
+              Sign In
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-5 px-6">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 text-center hover:bg-slate-800/70 transition-all duration-300 hover:scale-105">
-              <div className={`w-16 h-16 bg-gradient-to-r ${stat.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}>
-                <stat.icon className="w-8 h-8 text-white" />
-              </div>
-              <div className="text-3xl font-bold mb-2">{stat.value}</div>
-              <div className="text-gray-400">{stat.label}</div>
+      {/* ── Stats ── */}
+      <section className={`border-y ${t.border} py-12`}>
+        <div className="max-w-5xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {stats.map((stat, i) => (
+            <div key={i} className="text-center">
+              <p className={`text-2xl sm:text-3xl font-bold text-tabular ${t.text.primary} tracking-tight`}>{stat.value}</p>
+              <p className={`text-xs ${t.text.muted} mt-1 text-label-upper`}>{stat.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
+      {/* ── Features ── */}
+      <section className="py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Finlock Features That Empower You
+            <h2 className={`text-3xl sm:text-4xl font-bold ${t.text.primary} tracking-tight mb-4`}>
+              Everything you need to
+              <span className="text-[#4EDEA3]"> take control</span>
             </h2>
-            <p className="text-xl text-gray-300">
-              Everything you need to manage your finances with quantum-level precision
+            <p className={`${t.text.secondary} max-w-2xl mx-auto`}>
+              Powerful tools designed with simplicity in mind.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div key={index} className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105 group">
-                <div className={`w-16 h-16 bg-gradient-to-r ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <feature.icon className="w-8 h-8 text-white" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {features.map((feature, i) => (
+              <div
+                key={i}
+                className={`group ${t.card} border rounded-xl p-6 transition-all duration-200 ${t.cardHover}`}
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#10B981]/10 flex items-center justify-center mb-4
+                  group-hover:bg-[#10B981]/20 transition-colors duration-200">
+                  <feature.icon className="w-5 h-5 text-[#4EDEA3]" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4">{feature.title}</h3>
-                <p className="text-gray-300 leading-relaxed">{feature.description}</p>
+                <h3 className={`text-base font-semibold ${t.text.primary} mb-2`}>{feature.title}</h3>
+                <p className={`text-sm ${t.text.secondary} leading-relaxed`}>{feature.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Activation Protocol */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
+      {/* ── How It Works ── */}
+      <section className={`py-20 ${isDark ? 'bg-[#0B0E13]' : 'bg-[#F5F5F4]'}`}>
+        <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              Get Started with Finlock Today
+            <h2 className={`text-3xl sm:text-4xl font-bold ${t.text.primary} tracking-tight mb-4`}>
+              Get started in <span className="text-[#4EDEA3]">3 steps</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {activationSteps.map((step, index) => (
-              <div key={index} className={`relative bg-slate-800/30 backdrop-blur-sm border rounded-2xl p-8 text-center transition-all duration-500 ${activeStep === index ? 'border-cyan-400 bg-slate-800/60 scale-105' : 'border-slate-700/50'
-                }`}>
-                <div className={`absolute -top-4 -right-4 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-500 ${activeStep === index ? 'bg-gradient-to-r from-pink-400 to-purple-500' : 'bg-slate-700'
-                  }`}>
-                  {step.step}
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { step: "01", title: "Create Account", desc: "Sign up in seconds with email or Google. No credit card required." },
+              { step: "02", title: "Add Accounts", desc: "Set up your checking, savings, or investment accounts with initial balances." },
+              { step: "03", title: "Track & Grow", desc: "Log transactions, set budgets, and watch your financial picture come together." },
+            ].map((item, i) => (
+              <div key={i} className="text-center">
+                <div className="w-12 h-12 rounded-xl bg-[#10B981]/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-sm font-bold text-[#4EDEA3] text-tabular">{item.step}</span>
                 </div>
-                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-500 ${activeStep === index ? 'bg-gradient-to-r from-cyan-400 to-blue-500' : 'bg-slate-700'
-                  }`}>
-                  <step.icon className="w-10 h-10 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
-                <p className="text-gray-300">{step.description}</p>
+                <h3 className={`text-base font-semibold ${t.text.primary} mb-2`}>{item.title}</h3>
+                <p className={`text-sm ${t.text.secondary} leading-relaxed`}>{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
+      {/* ── Testimonials ── */}
+      <section className="py-20">
+        <div className="max-w-5xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              User Testimonials
+            <h2 className={`text-3xl sm:text-4xl font-bold ${t.text.primary} tracking-tight mb-4`}>
+              Loved by <span className="text-[#4EDEA3]">thousands</span>
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 hover:bg-slate-800/50 transition-all duration-300 hover:scale-105">
-                <div className="flex items-center mb-6">
-                  <div className={`w-12 h-12 bg-gradient-to-r ${testimonial.color} rounded-full flex items-center justify-center text-white font-bold mr-4`}>
-                    {testimonial.avatar}
-                  </div>
-                  <div>
-                    <div className="font-bold">{testimonial.name}</div>
-                    <div className="text-gray-400 text-sm">{testimonial.role}</div>
-                  </div>
-                </div>
-                <div className="flex mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              { name: "Priya S.", role: "Freelancer", quote: "Finally a finance app that feels premium and actually works. The dark mode is stunning." },
+              { name: "Rahul M.", role: "Startup Founder", quote: "I manage 4 accounts seamlessly. Budget tracking saved me from overspending every month." },
+              { name: "Ananya K.", role: "Student", quote: "The receipt scanner is magic. I just snap and everything fills in automatically." },
+            ].map((review, i) => (
+              <div key={i} className={`${t.card} border rounded-xl p-6`}>
+                <div className="flex gap-0.5 mb-3">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-3.5 h-3.5 fill-[#FBBF24] text-[#FBBF24]" />
                   ))}
                 </div>
-                <p className="text-gray-300 leading-relaxed">{testimonial.text}</p>
+                <p className={`text-sm ${t.text.secondary} mb-4 leading-relaxed italic`}>"{review.quote}"</p>
+                <div>
+                  <p className={`text-sm font-semibold ${t.text.primary}`}>{review.name}</p>
+                  <p className={`text-xs ${t.text.muted}`}>{review.role}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-            Ready to Activate Financial Intelligence?
+      {/* ── CTA ── */}
+      <section className={`py-20 ${isDark ? 'bg-[#0B0E13]' : 'bg-[#F5F5F4]'}`}>
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className={`text-3xl sm:text-4xl font-bold ${t.text.primary} tracking-tight mb-4`}>
+            Ready to take control?
           </h2>
-          <p className="text-xl text-gray-300 mb-12">
-            Join thousands of users who are already managing their finances smarter with Finlock
+          <p className={`${t.text.secondary} mb-8 max-w-xl mx-auto`}>
+            Join thousands who are building better financial habits with Finlock.
           </p>
-          <button onClick={checkAuth} className="bg-gradient-to-r from-cyan-400 to-purple-500 px-12 py-4 rounded-lg text-xl font-semibold hover:shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105 group">
-            Start Managing Smarter with Finlock
-            <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">◉</span>
+          <button
+            onClick={() => navigate(user ? "/dashboard" : "/register")}
+            className="group px-7 py-3.5 bg-gradient-to-r from-[#10B981] to-[#4EDEA3] text-[#003824] font-semibold rounded-xl hover:from-[#059669] hover:to-[#10B981] transition-all duration-200 shadow-sm flex items-center gap-2 text-sm mx-auto"
+          >
+            {user ? "Go to Dashboard" : "Start For Free"}
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-700/50 py-8 px-6">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img src={logo} alt="Finlock Logo" className="h-10 w-10" />
-            <span className="text-xl font-bold">Finlock</span>
+      {/* ── Footer ── */}
+      <footer className={`border-t ${t.border} py-8`}>
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-semibold ${t.text.primary}`}>Finlock</span>
+            <span className={`text-xs ${t.text.muted}`}>© 2025</span>
           </div>
-          <div className="text-gray-400 text-sm">
-            © 2025 Finlock. All rights reserved. | Powered by Finlock
+          <div className="flex gap-6">
+            {["Privacy", "Terms", "Contact"].map((link) => (
+              <a key={link} href="#" className={`text-xs ${t.text.muted} hover:${t.text.secondary} transition-colors`}>{link}</a>
+            ))}
           </div>
         </div>
       </footer>
     </div>
   );
-};
-
-export default FinlockLanding;
+}
