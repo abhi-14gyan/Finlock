@@ -215,7 +215,7 @@ export default function LandingPage() {
           </div>
           <div className="flex gap-6">
             {["Privacy", "Terms", "Contact"].map((link) => (
-              <a key={link} href="#" className={`text-xs ${t.text.muted} hover:${t.text.secondary} transition-colors`}>{link}</a>
+              <button key={link} className={`text-xs ${t.text.muted} hover:${t.text.secondary} transition-colors`}>{link}</button>
             ))}
           </div>
         </div>

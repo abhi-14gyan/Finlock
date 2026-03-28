@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import axios from "../utils/axios";
 import { format, parseISO } from "date-fns";
 import { Search, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Clock, Trash, X } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useAuth } from "../context/AuthContext";
+
 import { useTheme } from "../context/ThemeContext";
 import Dropdown from '../components/Dropdown';
 import { AccountBarChart } from '../components/accountchart';
@@ -13,8 +13,6 @@ import { categoryColors as catColors } from '../theme';
 
 const AccountPage = () => {
   const { accountId } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { isDark, t } = useTheme();
 
   const [accountData, setAccountData] = useState(null);
@@ -39,6 +37,7 @@ const AccountPage = () => {
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchAccountDetails(); }, [accountId]);
 
   const handleSort = (field) => {

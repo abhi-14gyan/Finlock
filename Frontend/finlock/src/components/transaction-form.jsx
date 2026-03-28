@@ -192,7 +192,7 @@ export default function AddTransactionForm({
     initialData = null,
     onSubmit: onFormSubmit = () => { },
 }) {
-    const { isDark, t } = useTheme();
+    const { t } = useTheme();
     const [formData, setFormData] = useState({
         type: 'EXPENSE',
         amount: '',

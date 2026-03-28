@@ -1,7 +1,6 @@
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import { Suspense, lazy } from "react";
-import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from './components/ProtectedRoute';
 //Pages
 import NeoWealthLanding from './pages/landingpage';

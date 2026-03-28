@@ -11,7 +11,7 @@ import { CreateAccountDrawer } from '../components/CreateAccountDrawer';
 import BudgetProgress from '../components/BudgetProgress';
 import AccountDropdown from '../components/accountCardDropdown';
 import AppLayout from '../components/AppLayout';
-import { chartColors, categoryColors } from '../theme';
+import { chartColors } from '../theme';
 
 const Dashboard = () => {
   const [accounts, setAccounts] = useState([]);
