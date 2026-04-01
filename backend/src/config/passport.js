@@ -19,7 +19,8 @@ passport.use(
           googleId: profile.id,
           email: profile.emails[0].value,
           username: profile.displayName,
-          imageUrl: profile.photos[0].value
+          imageUrl: profile.photos[0].value,
+          isVerified: true, // Google has already verified the email
         });
       }
 

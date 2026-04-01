@@ -1,9 +1,12 @@
+const crypto = require("crypto");
 const asyncHandler = require("../utils/asyncHandler.js");
 const User = require("../models/user.model.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 const { ApiError } = require("../utils/apiError.js");
 const { ApiResponse } = require("../utils/apiResponse.js");
 const jwt = require("jsonwebtoken");
+const { sendEmail } = require("../actions/sendEmail.js");
+const { getVerificationEmailHtml } = require("../templates/verificationEmail.js");
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -20,6 +23,31 @@ const generateAccessAndRefreshToken = async (userId) => {
   }
 };
 
+// Helper: generate verification token and send email
+const sendVerificationEmail = async (user) => {
+  const rawToken = crypto.randomBytes(32).toString("hex");
+  const hashedToken = crypto.createHash("sha256").update(rawToken).digest("hex");
+
+  user.verificationToken = hashedToken;
+  user.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  await user.save({ validateBeforeSave: false });
+
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${rawToken}&email=${encodeURIComponent(user.email)}`;
+
+  const html = getVerificationEmailHtml({
+    userName: user.username,
+    verificationUrl,
+  });
+
+  const result = await sendEmail({
+    to: user.email,
+    subject: "Verify Your Email — Finlock",
+    html,
+  });
+
+  return result;
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -30,30 +58,24 @@ const registerUser = asyncHandler(async (req, res) => {
   const existedEmail = await User.findOne({ email });
   if (existedEmail) throw new ApiError(409, "Email already exists");
 
-  // let imageUrl = { url: "/public/assets/DefaultUserLogo.png" }; // Default image URL
-
-  // const imageUrlLocalPath = req.files?.imageUrl?.[0]?.path;
-  // if (imageUrlLocalPath) {
-  //   const uploadedImage = await uploadOnCloudinary(imageUrlLocalPath);
-  //   if (uploadedImage?.url) {
-  //     imageUrl = uploadedImage;
-  //   }
-  // }
-
   const user = await User.create({
     email,
     password,
     username,
-    imageUrl: null, // Explicitly set to null
+    imageUrl: null,
+    isVerified: false,
   });
 
-  const createdUser = await User.findById(user._id).select("-password -refreshToken");
+  // Send verification email
+  await sendVerificationEmail(user);
+
+  const createdUser = await User.findById(user._id).select("-password -refreshToken -verificationToken -verificationTokenExpiry");
 
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering the user");
   }
 
-  return res.status(201).json(new ApiResponse(201, createdUser, "User Registered Successfully"));
+  return res.status(201).json(new ApiResponse(201, createdUser, "Registration successful! Please check your email to verify your account."));
 });
 
 
@@ -65,11 +87,16 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
   if (!user) throw new ApiError(404, "User does not exist");
 
+  // Check if email is verified
+  if (!user.isVerified) {
+    throw new ApiError(403, "Please verify your email before logging in. Check your inbox for the verification link.");
+  }
+
   const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) throw new ApiError(401, "Invalid user credentials");
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
-  const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
+  const loggedInUser = await User.findById(user._id).select("-password -refreshToken -verificationToken -verificationTokenExpiry");
 
   const options = { httpOnly: true, secure: true, sameSite: "None" };
 
@@ -78,6 +105,77 @@ const loginUser = asyncHandler(async (req, res) => {
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(new ApiResponse(200, { user: loggedInUser, accessToken, refreshToken }, "User logged in successfully"));
+});
+
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { token, email } = req.query;
+
+  if (!token || !email) {
+    throw new ApiError(400, "Token and email are required");
+  }
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    email: decodeURIComponent(email),
+    verificationToken: hashedToken,
+    verificationTokenExpiry: { $gt: new Date() },
+  });
+
+  if (!user) {
+    throw new ApiError(400, "Invalid or expired verification token. Please request a new one.");
+  }
+
+  user.isVerified = true;
+  user.verificationToken = null;
+  user.verificationTokenExpiry = null;
+  await user.save({ validateBeforeSave: false });
+
+  return res.status(200).json(new ApiResponse(200, {}, "Email verified successfully! You can now log in."));
+});
+
+const resendVerification = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) throw new ApiError(400, "Email is required");
+
+  const user = await User.findOne({ email });
+
+  if (!user) throw new ApiError(404, "User not found");
+  if (user.isVerified) throw new ApiError(400, "Email is already verified");
+
+  // Rate limit: don't allow resend if token was sent less than 2 minutes ago
+  if (user.verificationTokenExpiry) {
+    const tokenAge = Date.now() - (user.verificationTokenExpiry.getTime() - 24 * 60 * 60 * 1000);
+    if (tokenAge < 2 * 60 * 1000) {
+      throw new ApiError(429, "Please wait at least 2 minutes before requesting another verification email.");
+    }
+  }
+
+  await sendVerificationEmail(user);
+
+  return res.status(200).json(new ApiResponse(200, {}, "Verification email sent! Please check your inbox."));
+});
+
+const guestLogin = asyncHandler(async (req, res) => {
+  const GUEST_EMAIL = "guest@finlock.demo";
+
+  const user = await User.findOne({ email: GUEST_EMAIL });
+
+  if (!user) {
+    throw new ApiError(503, "Demo account is not available right now. Please try again later.");
+  }
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
+  const guestUser = await User.findById(user._id).select("-password -refreshToken -verificationToken -verificationTokenExpiry");
+
+  const options = { httpOnly: true, secure: true, sameSite: "None" };
+
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new ApiResponse(200, { user: guestUser, accessToken, refreshToken }, "Guest login successful! Explore the dashboard."));
 });
 
 const logoutUser = asyncHandler(async (req, res, next) => {
@@ -118,9 +216,8 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Refresh Token expired or used");
     }
 
-    const options = { httpOnly: true, secure: true, samSite: "None" };
-    res.cookie("accessToken", accessToken, options);
     const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefreshToken(user._id);
+    const options = { httpOnly: true, secure: true, sameSite: "None" };
 
     return res
       .status(200)
@@ -190,4 +287,7 @@ module.exports = {
   getUser,
   updateAccountDetails,
   updateUserName,
+  verifyEmail,
+  resendVerification,
+  guestLogin,
 };

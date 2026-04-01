@@ -29,6 +29,18 @@ const userSchema = new mongoose.Schema({
   refreshToken: {
     type: String
   },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: {
+    type: String,
+    default: null
+  },
+  verificationTokenExpiry: {
+    type: Date,
+    default: null
+  },
 }, { timestamps: true });
 
 // Hash password before saving

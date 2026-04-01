@@ -7,6 +7,7 @@ import NeoWealthLanding from './pages/landingpage';
 import AccountsPage from './pages/account.jsx';
 import RegisterPage from './pages/Register';
 import AddTransactionPage from './pages/transaction.jsx';
+import VerifyEmail from './pages/VerifyEmail.jsx';
 const Dashboard = lazy(() => import("./pages/dashboard.jsx"));
 const SignInPage = lazy(() => import("./pages/Signin.jsx"));
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/signin" element={<SignInPage/>}/>
         <Route path="/account/:accountId" element={<AccountsPage/>}/>
         <Route path="/transaction" element={<AddTransactionPage/>}/>
+        <Route path="/verify-email" element={<VerifyEmail/>}/>
 
       </Routes>
       </Suspense>

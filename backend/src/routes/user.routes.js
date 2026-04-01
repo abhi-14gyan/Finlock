@@ -9,6 +9,9 @@ const {
   getUser,
   updateAccountDetails,
   updateUserName,
+  verifyEmail,
+  resendVerification,
+  guestLogin,
 } = require("../controllers/user.controller");
 
 const { verifyJWT } = require("../middlewares/auth.middleware");
@@ -18,6 +21,9 @@ const { upload } = require("../middlewares/multer.middleware");
 router.post("/register", upload.fields([{ name: "imageUrl", maxCount: 1 }]), registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
+router.get("/verify-email", verifyEmail);
+router.post("/resend-verification", resendVerification);
+router.post("/guest-login", guestLogin);
 
 // Protected Routes
 router.post("/logout", verifyJWT, logoutUser);

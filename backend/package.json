@@ -9,6 +9,7 @@
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
     "seed": "node src/actions/run.js",
+    "seed:guest": "node src/actions/seedGuest.js",
     "email": "email dev"
   },
   "author": "Abhigyan Srivastava , Abhinav Srivastava",
