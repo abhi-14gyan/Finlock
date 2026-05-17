@@ -92,16 +92,32 @@ export default function RegisterPage() {
 
   const handleGuestLogin = async () => {
     setGuestLoading(true);
-    try {
-      const response = await axios.post("/api/v1/users/guest-login", {}, { withCredentials: true });
-      setUser(response.data.data.user);
-      toast.success("Welcome! Exploring as a guest.");
-      navigate("/dashboard");
-    } catch (error) {
-      toast.error("Guest login unavailable right now. Please try again.");
-    } finally {
-      setGuestLoading(false);
+    const maxRetries = 3;
+    let attempt = 0;
+
+    while (attempt < maxRetries) {
+      try {
+        const response = await axios.post("/api/v1/users/guest-login", {}, { withCredentials: true, timeout: 60000 });
+        setUser(response.data.data.user);
+        toast.success("Welcome! Exploring as a guest.");
+        navigate("/dashboard");
+        return;
+      } catch (error) {
+        attempt++;
+        if (error.response?.status === 503 || error.code === 'ECONNABORTED') {
+          if (attempt === 1) {
+            toast.info("⏳ Waking up the server... please wait (free tier cold start).", { autoClose: 15000 });
+          }
+          if (attempt < maxRetries) {
+            await new Promise(resolve => setTimeout(resolve, attempt * 5000));
+            continue;
+          }
+        }
+        toast.error("Guest login unavailable right now. Please try again in a minute.");
+        break;
+      }
     }
+    setGuestLoading(false);
   };
 
   const handleGoogleLogin = () => {
@@ -195,7 +211,7 @@ export default function RegisterPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
-                  Loading Demo...
+                  Loading Demo... (may take up to 60s)
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">

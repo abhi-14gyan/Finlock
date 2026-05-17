@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  # --- MONGO DATABASE CONTAINER ---
+  mongo_db:
+    image: mongo:latest
+    container_name: finlock_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - finlock_db_data:/data/db
+
+  # --- BACKEND CONTAINER ---
+  backend:
+    build: ./backend
+    container_name: finlock_backend
+    ports:
+      - "4000:4000" # Maps local 4000 to container 4000
+    depends_on:
+      - mongo_db
+    env_file:
+      - ./backend/.env
+    environment:
+      # Only Docker-specific overrides below (these take precedence over .env values):
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo_db:27017 # Connects directly to the mongo container (DB name is appended by the app)
+      - COURSE_ORIGIN=http://localhost:3000
+      - FRONTEND_URL=http://localhost:3000
+      - GOOGLE_CALLBACK_URL=http://localhost:4000/api/v1/auth/google/callback
+
+  # --- FRONTEND CONTAINER ---
+  frontend:
+    build: ./Frontend/finlock # Notice the capital 'F' to match your folder name
+    container_name: finlock_frontend
+    ports:
+      - "3000:3000" # Change to "5173:5173" if using Vite
+    stdin_open: true # Keeps the React server interactive and running
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:4000 # Intercepts Render URL and hits local container backend
+
+volumes:
+  finlock_db_data:

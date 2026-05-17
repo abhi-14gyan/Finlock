@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # --- MONGO DATABASE CONTAINER ---
+  mongo_db:
+    image: mongo:latest
+    container_name: finlock_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - finlock_db_data:/data/db
+
+  # --- BACKEND CONTAINER ---
+  backend:
+    # 🌍 Instead of building from a local folder, pull it directly from the cloud!
+    image: abhin07av/finlock-backend:v1
+    container_name: finlock_backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongo_db
+    env_file:
+      - ./backend/.env # 🔒 Loads all secrets (API keys, OAuth creds, etc.) from .env
+    environment:
+      # Only Docker-specific overrides below (these take precedence over .env values):
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongo_db:27017 # DB name is appended by the app from constants.js
+      - COURSE_ORIGIN=http://localhost:3000
+      - FRONTEND_URL=http://localhost:3000
+      - GOOGLE_CALLBACK_URL=http://localhost:4000/api/v1/auth/google/callback
+
+  # --- FRONTEND CONTAINER ---
+  frontend:
+    # 🌍 Pull the frontend from the cloud!
+    image: abhin07av/finlock-frontend:v1
+    container_name: finlock_frontend
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:4000
+
+volumes:
+  finlock_db_data:

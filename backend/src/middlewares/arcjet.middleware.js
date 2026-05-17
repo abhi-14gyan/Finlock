@@ -1,31 +1,48 @@
 // middlewares/arcjet.middleware.js
-const arcjetImport = require("@arcjet/node");
-const { shield, detectBot, tokenBucket } = arcjetImport;
-const { isSpoofedBot } = require("@arcjet/inspect");
 
-const arcjet = arcjetImport.default;
+let ajInstance = null;
+let arcjetLib = null;
+let isSpoofedBot = null;
 
-const aj = arcjet({
-  key: process.env.ARCJET_API_KEY,
-  characteristics: ["ip.src"],
-  rules: [
-    shield({ mode: "LIVE" }),
-    detectBot({
-      mode: "LIVE",
-      allow: ["CATEGORY:SEARCH_ENGINE"],
-    }),
-    tokenBucket({
-      mode: "LIVE",
-      refillRate: 50, // 10 tokens per hour
-      interval: 3600, // 3600 seconds = 1 hour
-      capacity: 50,
-    }),
-  ],
-});
+// Helper function to dynamically import Arcjet if it hasn't been loaded yet
+const getArcjetInstance = async () => {
+  if (!ajInstance) {
+    // Dynamically import the ES module packages inside CommonJS
+    const arcjetModule = await import("@arcjet/node");
+    const inspectModule = await import("@arcjet/inspect");
+    arcjetLib = arcjetModule;
+    isSpoofedBot = inspectModule.isSpoofedBot;
+    
+    const arcjet = arcjetModule.default;
+    const { shield, detectBot, tokenBucket } = arcjetModule;
+
+    ajInstance = arcjet({
+      key: process.env.ARCJET_API_KEY,
+      characteristics: ["ip.src"],
+      rules: [
+        shield({ mode: "LIVE" }),
+        detectBot({
+          mode: "LIVE",
+          allow: ["CATEGORY:SEARCH_ENGINE"],
+        }),
+        tokenBucket({
+          mode: "LIVE",
+          refillRate: 50, 
+          interval: 3600, 
+          capacity: 50,
+        }),
+      ],
+    });
+  }
+  return { aj: ajInstance, isSpoofedBot };
+};
 
 // Middleware for rate-limiting + bot detection
 const rateLimiter = async (req, res, next) => {
   try {
+    // 🚀 Retrieve our dynamically loaded Arcjet instance safely
+    const { aj, isSpoofedBot } = await getArcjetInstance();
+
     const userId = req.user?._id?.toString() || req.ip;
 
     const decision = await aj.protect(req, {
