@@ -93,9 +93,10 @@ export default function RegisterPage() {
   const handleGuestLogin = async () => {
     setGuestLoading(true);
     const maxRetries = 3;
-    let attempt = 0;
 
-    while (attempt < maxRetries) {
+    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
       try {
         const response = await axios.post("/api/v1/users/guest-login", {}, { withCredentials: true, timeout: 60000 });
         setUser(response.data.data.user);
@@ -103,13 +104,13 @@ export default function RegisterPage() {
         navigate("/dashboard");
         return;
       } catch (error) {
-        attempt++;
+        const currentAttempt = attempt + 1;
         if (error.response?.status === 503 || error.code === 'ECONNABORTED') {
-          if (attempt === 1) {
+          if (currentAttempt === 1) {
             toast.info("⏳ Waking up the server... please wait (free tier cold start).", { autoClose: 15000 });
           }
-          if (attempt < maxRetries) {
-            await new Promise(resolve => setTimeout(resolve, attempt * 5000));
+          if (currentAttempt < maxRetries) {
+            await delay(currentAttempt * 5000);
             continue;
           }
         }
